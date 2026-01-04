@@ -1,5 +1,13 @@
 # Vue 3 + Vite
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+此模板将帮助您开始使用 Vite 开发 Vue 3 项目。该模板采用 Vue 3 `<script setup>` 单文件组件，请查阅 [script setup 文档](https://cn.vuejs.org/api/sfc-script-setup) 了解更多信息。
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+了解更多关于 Vue 的 IDE 支持，请查阅[Vue 文档扩展指南中的 IDE 支持章节](https://cn.vuejs.org/guide/scaling-up/tooling#ide-support)。
+
+# 实现效果
+
+![2026-01-04 效果](./assets/images/PixPin_2026-01-04_14-22-28.png)
+
+# 提交记录
+1. [项目初始化](https://github.com/gisnotes/cgcs2000-projection-zones/commit/d098db67ce6c2b3d20cea4793b7fb42a683ca594)
+2. [分度带的可视化 + 属性弹窗](https://github.com/gisnotes/cgcs2000-projection-zones/commit/d5659c6ce6f779a23bea6d023b6bc2a71c465292)
