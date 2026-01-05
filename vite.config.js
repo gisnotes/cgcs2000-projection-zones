@@ -9,6 +9,7 @@ import Icons from 'unplugin-icons/vite';
 import IconsResolver from 'unplugin-icons/resolver';
 
 export default defineConfig({
+  base: '/cgcs2000-projection-zones/', // 仓库名必须与 GitHub 仓库完全一致
   transpileDependencies: true,
   lintOnSave: false, //关闭eslint检测
   server: {
