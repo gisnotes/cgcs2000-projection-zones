@@ -6,6 +6,8 @@
 
 # 实现效果
 
+访问地址：[https://gisnotes.github.io/cgcs2000-projection-zones/](https://gisnotes.github.io/cgcs2000-projection-zones/)
+
 ![2026-01-04 效果](./assets/images/PixPin_2026-01-04_14-22-28.png)
 
 # 提交记录

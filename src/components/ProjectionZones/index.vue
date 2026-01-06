@@ -1,30 +1,42 @@
 <template>
-  <div class="projection-zones" @click.stop>
-    <div>投影分带</div>
-    <el-divider style="margin: 10px 0"></el-divider>
-    <el-input
-      size="small"
-      v-model="filterText"
-      style="margin: 6px 0 10px 0"
-      placeholder="请输入关键字" />
-    <div class="tree">
-      <el-tree
-        ref="treeRef"
-        :data="PROJECTIONS"
-        node-key="id"
-        :props="DEFAULT_PROPS"
-        :default-expanded-keys="[2, 3, 8]"
-        :filter-node-method="filterNode"
-        @node-click="handleNodeClick"
-        highlight-current>
-        <template #default="{ node, data }">
-          <span class="custom-tree-node">
-            <span :title="node.label">{{ node.label }}</span>
-          </span>
-        </template>
-      </el-tree>
+  <transition name="el-fade-in-linear">
+    <div class="projection-zones-fold" v-show="fold" @click="handleFold">
+      <i-ep-Expand />
     </div>
-  </div>
+  </transition>
+  <transition :name="fold ? 'el-zoom-in-bottom' : 'el-zoom-in-top'">
+    <div class="projection-zones" v-show="!fold">
+      <div class="header">
+        <div class="title">投影分带</div>
+        <div class="fold" @click="handleFold">
+          <i-ep-Fold />
+        </div>
+      </div>
+      <el-divider style="margin: 10px 0"></el-divider>
+      <el-input
+        size="small"
+        v-model="filterText"
+        style="margin: 6px 0 10px 0"
+        placeholder="请输入关键字" />
+      <div class="tree">
+        <el-tree
+          ref="treeRef"
+          :data="PROJECTIONS"
+          node-key="id"
+          :props="DEFAULT_PROPS"
+          :default-expanded-keys="[2, 3, 8]"
+          :filter-node-method="filterNode"
+          @node-click="handleNodeClick"
+          highlight-current>
+          <template #default="{ node, data }">
+            <span class="custom-tree-node">
+              <span :title="node.label">{{ node.label }}</span>
+            </span>
+          </template>
+        </el-tree>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -39,6 +51,8 @@ import { DEFAULT_PROPS, PROJECTIONS } from './data.js';
 const state = inject('state');
 const isMapCreated = inject('isMapCreated');
 
+const fold = ref(false);
+
 let map = null;
 let feature = null;
 
@@ -48,7 +62,7 @@ const layer = new VectorLayer({
   zIndex: 99,
   style: new Style({
     fill: new Fill({
-      color: 'rgba(255, 0, 0, 0.3)',
+      color: 'rgba(255, 0, 0, 0.2)',
     }),
     stroke: new Stroke({
       color: '#ff0000',
@@ -98,30 +112,73 @@ function handleNodeClick(data) {
     feature.setProperties({ ...data });
     map.getView().fit(geometry, {
       duration: 300,
-      padding: [100, 200, 100, 600],
+      padding: [100, 200, 100, 200 + 400],
       callback: () => emits('popup', data),
     });
   }
 }
+
+function handleFold() {
+  fold.value = !fold.value;
+}
 </script>
 
 <style lang="scss" scoped>
+.projection-zones-fold {
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  &:hover {
+    color: #4094ff;
+  }
+}
+
+.projection-zones-fold,
 .projection-zones {
   position: absolute;
   top: 8px;
   left: 8px;
-  width: 400px;
-  height: calc(50% - 8px);
-  overflow: hidden;
-  background-color: white;
   border-radius: 4px;
-  padding: 10px;
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.12),
     0 0 6px rgba(0, 0, 0, 0.04);
-  transition: height 0.3s ease-in-out;
   display: flex;
+  background-color: white;
+}
+
+.projection-zones {
+  width: 400px;
+  height: calc(50% - 12px);
+  overflow: hidden;
+  padding: 10px;
   flex-direction: column;
+
+  .header {
+    display: flex;
+    align-items: center;
+
+    .title {
+      flex: 1;
+    }
+
+    .fold {
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+
+      &:hover {
+        color: #4094ff;
+      }
+    }
+  }
 
   .tree {
     flex: 1;
