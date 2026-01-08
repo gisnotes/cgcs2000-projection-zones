@@ -80,6 +80,9 @@ onMounted(() => {
     offset: props.offset,
     autoPan: getAutoPan,
     positioning: 'bottom-center',
+    propeties: {
+      name: 'popup',
+    },
   });
   popOverLay.setOffset(props.offset);
   popOverLay.setPosition(undefined);
@@ -92,6 +95,10 @@ function close() {
 
 onBeforeUnmount(() => {
   popOverLay && popOverLay.setPosition(undefined);
+});
+
+defineExpose({
+  close,
 });
 </script>
 

@@ -1,122 +1,67 @@
 <template>
-  <transition name="el-fade-in-linear">
-    <div class="projection-zones-fold" v-show="fold" @click="handleFold">
-      <i-ep-Expand />
-    </div>
-  </transition>
-  <transition :name="fold ? 'el-zoom-in-bottom' : 'el-zoom-in-top'">
-    <div class="projection-zones" v-show="!fold">
-      <div class="header">
-        <div class="title">投影分带</div>
-        <div class="fold" @click="handleFold">
-          <i-ep-Fold />
+  <div>
+    <transition name="el-fade-in-linear">
+      <div class="projection-zones-fold" v-show="fold" @click="handleFold">
+        <i-ep-Expand />
+      </div>
+    </transition>
+    <transition :name="fold ? 'el-zoom-in-bottom' : 'el-zoom-in-top'">
+      <div class="projection-zones" v-show="!fold">
+        <div class="header">
+          <div class="title">投影分带</div>
+          <div class="fold" @click="handleFold">
+            <i-ep-Fold />
+          </div>
         </div>
+        <el-divider style="margin: 10px 0"></el-divider>
+        <el-tabs v-model="activeName" type="card">
+          <el-tab-pane label="CGCS 2000" name="cgcs2000">
+            <zones-render
+              v-bind="$attrs"
+              :data="PROJECTIONS_2000"
+              :visible="activeName === 'cgcs2000'" />
+          </el-tab-pane>
+          <el-tab-pane label="3度分带-无带号" name="degree3WithoutZone">
+            <zones-render
+              v-bind="$attrs"
+              :data="PROJECTIONS_3_DEGREE_NO_ZONE"
+              :visible="activeName === 'degree3WithoutZone'" />
+          </el-tab-pane>
+          <el-tab-pane label="3度分带-有带号" name="degree3WithZone">
+            <zones-render
+              v-bind="$attrs"
+              :data="PROJECTIONS_3_DEGREE"
+              :visible="activeName === 'degree3WithZone'" />
+          </el-tab-pane>
+          <el-tab-pane label="6度分带-无带号" name="degree6WithoutZone">
+            <zones-render
+              v-bind="$attrs"
+              :data="PROJECTIONS_6_DEGREE_NO_ZONE"
+              :visible="activeName === 'degree6WithoutZone'" />
+          </el-tab-pane>
+          <el-tab-pane label="6度分带-有带号" name="degree6WithZone">
+            <zones-render
+              v-bind="$attrs"
+              :data="PROJECTIONS_6_DEGREE"
+              :visible="activeName === 'degree6WithZone'" />
+          </el-tab-pane>
+        </el-tabs>
       </div>
-      <el-divider style="margin: 10px 0"></el-divider>
-      <el-input
-        size="small"
-        v-model="filterText"
-        style="margin: 6px 0 10px 0"
-        placeholder="请输入关键字" />
-      <div class="tree">
-        <el-tree
-          ref="treeRef"
-          :data="PROJECTIONS"
-          node-key="id"
-          :props="DEFAULT_PROPS"
-          :default-expanded-keys="[2, 3, 8]"
-          :filter-node-method="filterNode"
-          @node-click="handleNodeClick"
-          highlight-current>
-          <template #default="{ node, data }">
-            <span class="custom-tree-node">
-              <span :title="node.label">{{ node.label }}</span>
-            </span>
-          </template>
-        </el-tree>
-      </div>
-    </div>
-  </transition>
+    </transition>
+  </div>
 </template>
 
 <script setup>
-import { Vector as VectorSource } from 'ol/source.js';
-import { Vector as VectorLayer } from 'ol/layer.js';
-import Feature from 'ol/Feature.js';
-import { fromExtent } from 'ol/geom/Polygon';
-import { Style, Fill, Stroke } from 'ol/style.js';
-
-import { DEFAULT_PROPS, PROJECTIONS } from './data.js';
-
-const state = inject('state');
-const isMapCreated = inject('isMapCreated');
+import {
+  PROJECTIONS_2000,
+  PROJECTIONS_6_DEGREE_NO_ZONE,
+  PROJECTIONS_6_DEGREE,
+  PROJECTIONS_3_DEGREE_NO_ZONE,
+  PROJECTIONS_3_DEGREE,
+} from './data.js';
 
 const fold = ref(false);
-
-let map = null;
-let feature = null;
-
-const source = new VectorSource({ wrapX: false });
-const layer = new VectorLayer({
-  source,
-  zIndex: 99,
-  style: new Style({
-    fill: new Fill({
-      color: 'rgba(255, 0, 0, 0.2)',
-    }),
-    stroke: new Stroke({
-      color: '#ff0000',
-      width: 2,
-    }),
-  }),
-  properties: {
-    name: 'projection-zones',
-  },
-});
-
-const filterText = ref('');
-const treeRef = ref();
-
-const emits = defineEmits(['popup']);
-
-watch(filterText, (val) => {
-  treeRef.value?.filter(val);
-});
-
-watch(isMapCreated, (val) => {
-  if (val) {
-    map = state.map;
-    init();
-  }
-});
-
-const filterNode = (value, data) => {
-  if (!value) return true;
-  return data.label.includes(value);
-};
-
-function init() {
-  map.addLayer(layer);
-}
-
-function handleNodeClick(data) {
-  const { bounds } = toRaw(data);
-  if (bounds) {
-    const geometry = fromExtent(bounds);
-    if (source.getFeatures().length === 0) {
-      feature = new Feature({ geometry });
-      source.addFeature(feature);
-    } else {
-      feature.setGeometry(geometry);
-    }
-    feature.setProperties({ ...data });
-    map.getView().fit(geometry, {
-      duration: 300,
-      padding: [100, 200, 100, 200 + 400],
-      callback: () => emits('popup', data),
-    });
-  }
-}
+const activeName = ref('degree3WithoutZone');
 
 function handleFold() {
   fold.value = !fold.value;
@@ -131,6 +76,7 @@ function handleFold() {
   justify-content: center;
   font-size: 20px;
   cursor: pointer;
+
   &:hover {
     color: #4094ff;
   }
@@ -151,10 +97,10 @@ function handleFold() {
 
 .projection-zones {
   width: 400px;
-  height: calc(50% - 12px);
   overflow: hidden;
-  padding: 10px;
   flex-direction: column;
+  padding-bottom: 10px;
+  padding: 10px;
 
   .header {
     display: flex;

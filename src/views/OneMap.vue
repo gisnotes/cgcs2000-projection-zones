@@ -1,8 +1,11 @@
 <template>
   <div class="wrap">
     <tdt-map @mapCreated="mapCreated" @mapClick="mapClick" />
-    <projection-zones @popup="handlePopup" />
-    <ol-popup :title :position :offset :propeties :popupInfo />
+    <projection-zones
+      v-bind="$attrs"
+      @popup="handlePopup"
+      @closePopup="handleClosePopup" />
+    <ol-popup ref="popup" :title :position :offset :propeties :popupInfo />
   </div>
 </template>
 
@@ -19,6 +22,7 @@ let propeties = ref([
   { key: 'bounds', val: '投影范围', unit: null },
 ]);
 let popupInfo = ref({});
+const popup = ref(null);
 
 const isMapCreated = ref(false);
 const state = shallowReactive({
@@ -42,20 +46,24 @@ function mapClick(evt) {
   );
   if (pickedFeature) {
     const properties = pickedFeature.getProperties();
-    popup(properties);
+    onPopup(properties);
   }
 }
 
 function handlePopup(data) {
-  popup(data);
+  onPopup(data);
 }
 
-function popup(properties) {
+function onPopup(properties) {
   if (Object.keys(properties).includes('bounds')) {
     popupInfo.value = properties;
     title.value = properties.label;
     position.value = getCenter(properties.bounds);
   }
+}
+
+function handleClosePopup() {
+  popup.value?.close();
 }
 </script>
 

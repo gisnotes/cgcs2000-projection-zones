@@ -14,6 +14,9 @@
 </template>
 
 <script setup>
+import { Vector as VectorSource } from 'ol/source.js';
+import { Vector as VectorLayer } from 'ol/layer.js';
+import { Style, Fill, Stroke } from 'ol/style.js';
 import Attribution from 'ol/control/Attribution.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
 import { defaults as defaultInteractions } from 'ol/interaction.js';
@@ -103,9 +106,26 @@ function createMap() {
     // extent: [...CHINA_BBOX],
   });
 
+  const highlightLayer = new VectorLayer({
+    source: new VectorSource({ wrapX: false }),
+    style: new Style({
+      fill: new Fill({
+        color: 'rgba(0, 255, 255, 0.1)',
+      }),
+      stroke: new Stroke({
+        color: 'rgb(0, 255, 255)',
+        width: 2,
+      }),
+    }),
+    properties: {
+      name: 'highlight',
+    },
+    zIndex: 100,
+  });
+
   map = new Map({
     target: mapDivRef.value,
-    layers: [vecLyrGrp, imgLyrGrp],
+    layers: [vecLyrGrp, imgLyrGrp, highlightLayer],
     view,
     controls,
     interactions: defaultInteractions({ doubleClickZoom: false }), //关闭双击交互
