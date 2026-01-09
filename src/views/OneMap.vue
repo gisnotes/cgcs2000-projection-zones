@@ -6,7 +6,14 @@
       @popup="handlePopup"
       @closePopup="handleClosePopup" />
     <administrative-divisions />
-    <ol-popup ref="popup" :title :position :offset :propeties :popupInfo />
+    <ol-popup
+      ref="popup"
+      :title
+      :position
+      :offset
+      :propeties
+      :popupInfo
+      @close="closePopup" />
   </div>
 </template>
 
@@ -72,6 +79,10 @@ function onPopup(properties, lngLat) {
     title.value = properties.label;
     position.value = lngLat ? lngLat : getCenter(properties.bounds);
   }
+}
+
+function closePopup() {
+  clearSource(highlightSource);
 }
 
 function handleClosePopup() {

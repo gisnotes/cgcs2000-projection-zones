@@ -1,10 +1,10 @@
 <template>
-  <transition name="el-fade-in-linear">
+  <transition name=".el-zoom-in-center">
     <div class="projection-zones-fold" v-show="fold" @click="handleFold">
       <i-ep-Fold />
     </div>
   </transition>
-  <el-collapse-transition>
+  <transition name=".el-zoom-in-center">
     <div class="projection-zones" v-show="!fold">
       <div class="header">
         <div class="title">行政区划</div>
@@ -38,7 +38,7 @@
         </el-tree>
       </div>
     </div>
-  </el-collapse-transition>
+  </transition>
 </template>
 
 <script setup>
@@ -117,7 +117,6 @@ function init() {
     ),
   ).then((results) => {
     results.forEach((result) => {
-      // console.log("🚀 ~ :120 ~ result:", result)
       if (result.status === 'fulfilled') {
         const { type, features } = result.value;
         // 根据 type 参数赋值
@@ -158,7 +157,7 @@ function showClickDivision(featureArr, gb) {
     source.addFeature(feature);
     map.getView().fit(feature.getGeometry(), {
       duration: 300,
-      padding: [100, 200 + 240, 100, 200 + 350],
+      padding: [20, 50 + 30 + 260, 20, 50 + 400],
     });
   }
 }
@@ -197,8 +196,8 @@ function handleFold() {
 
 .projection-zones {
   top: 8px;
-  right: 35px;
-  width: 240px;
+  right: 30px;
+  width: 260px;
   height: 500px;
   overflow: hidden;
   padding: 10px;

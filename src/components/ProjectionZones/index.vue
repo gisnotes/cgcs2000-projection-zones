@@ -1,11 +1,11 @@
 <template>
   <div>
-    <transition name="el-fade-in-linear">
+    <transition name=".el-zoom-in-center">
       <div class="projection-zones-fold" v-show="fold" @click="handleFold">
         <i-ep-Expand />
       </div>
     </transition>
-    <el-collapse-transition>
+    <transition name=".el-zoom-in-center">
       <div class="projection-zones" v-show="!fold">
         <div class="header">
           <div class="title">投影分带</div>
@@ -47,7 +47,7 @@
           </el-tab-pane>
         </el-tabs>
       </div>
-    </el-collapse-transition>
+    </transition>
   </div>
 </template>
 
@@ -97,7 +97,7 @@ function handleFold() {
 }
 
 .projection-zones {
-  width: 350px;
+  width: 390px;
   overflow: hidden;
   flex-direction: column;
   padding-bottom: 10px;
