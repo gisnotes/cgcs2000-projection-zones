@@ -10,25 +10,38 @@
       v-model="mapType"
       :options="typeOptions"
       @change="handleMapTypeChange" />
+    <div class="graticule-switch">
+      <div>经纬网：</div>
+      <el-switch
+        size="small"
+        width="40px"
+        v-model="graticuleSwitchVal"
+        inline-prompt
+        active-text="开"
+        inactive-text="关"
+        @change="handleGraticuleSwitchChange" />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { Vector as VectorSource } from 'ol/source.js';
-import { Vector as VectorLayer } from 'ol/layer.js';
-import { Style, Fill, Stroke } from 'ol/style.js';
 import Attribution from 'ol/control/Attribution.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
+import ScaleLine from 'ol/control/ScaleLine.js';
 import { defaults as defaultInteractions } from 'ol/interaction.js';
+import { Vector as VectorLayer } from 'ol/layer.js';
+import Graticule from 'ol/layer/Graticule.js';
 import Map from 'ol/Map.js';
 import { unByKey } from 'ol/Observable.js';
+import { Vector as VectorSource } from 'ol/source.js';
+import { Fill, Stroke, Style } from 'ol/style.js';
 import View from 'ol/View.js';
 
 import 'ol/ol.css';
 
 import Tianditu from './tianditu.js';
 
-const loading = ref(true);
+const loading = ref(false);
 let map, attribution, tdtInstance, vecLyrGrp, imgLyrGrp;
 let mapDivRef = ref();
 let mapClickEvtKey = null;
@@ -56,6 +69,18 @@ const typeOptions = [
     value: 'img',
   },
 ];
+
+const graticuleSwitchVal = ref(true);
+const graticuleLayer = new Graticule({
+  strokeStyle: new Stroke({
+    color: 'rgba(255,120,0,0.9)',
+    width: 2,
+    lineDash: [0.5, 4],
+  }),
+  showLabels: true,
+  visible: graticuleSwitchVal.value,
+  lonLabelPosition: 0.05,
+});
 
 //#region-------生命周期-------
 onMounted(async () => {
@@ -85,7 +110,7 @@ function createMap() {
     'img' === props.defaultTdtLyrType,
   );
   attribution = new Attribution({
-    collapsible: false,
+    // collapsible: false,
     attributions: `<span>自然资源部 & NavInfo审图号：GS（2025）1508号</span>`,
   });
 
@@ -93,7 +118,7 @@ function createMap() {
     attribution: false,
     rotate: false,
     zoom: false,
-  }).extend([attribution]);
+  }).extend([attribution, new ScaleLine()]);
 
   const view = new View({
     center: [
@@ -125,7 +150,7 @@ function createMap() {
 
   map = new Map({
     target: mapDivRef.value,
-    layers: [vecLyrGrp, imgLyrGrp, highlightLayer],
+    layers: [vecLyrGrp, imgLyrGrp, highlightLayer, graticuleLayer],
     view,
     controls,
     interactions: defaultInteractions({ doubleClickZoom: false }), //关闭双击交互
@@ -141,6 +166,7 @@ function initMapEvt() {
 
 function checkSize() {
   const small = map.getSize()[0] < 600;
+  // if (!small) return;
   attribution.setCollapsible(small);
   attribution.setCollapsed(small);
 }
@@ -159,6 +185,14 @@ function handleMapTypeChange(value) {
     imgLyrGrp.setVisible(true);
   }
 }
+
+function handleGraticuleSwitchChange(checked) {
+  if (checked) {
+    graticuleLayer.setVisible(true);
+  } else {
+    graticuleLayer.setVisible(false);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -168,13 +202,34 @@ function handleMapTypeChange(value) {
 
   &-switch {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    bottom: 8px;
+    left: 8px;
     z-index: 2;
   }
 }
 
 .el-loading-mask {
   z-index: 9999;
+}
+
+.graticule-switch {
+  position: absolute;
+  left: 140px;
+  bottom: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.12),
+    0 0 6px rgba(0, 0, 0, 0.04);
+}
+
+:deep(.ol-scale-line) {
+  left: 50%;
+  transform: translateX(-50%);
 }
 </style>

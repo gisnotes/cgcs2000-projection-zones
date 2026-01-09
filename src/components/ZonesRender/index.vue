@@ -149,7 +149,7 @@ function handleNodeClick(data) {
 
     map.getView().fit(feature.getGeometry(), {
       duration: 300,
-      padding: [100, 200, 100, 200 + 400],
+      padding: [100, 200 + 240, 100, 200 + 350],
       callback: () => emits('popup', data),
     });
   }
@@ -158,7 +158,7 @@ function handleNodeClick(data) {
 function fitChinaExtent() {
   map.getView().fit(CHINA_2000_EXTENT, {
     duration: 300,
-    padding: [100, 200, 100, 200 + 400],
+    padding: [100, 200 + 240, 100, 200 + 350],
   });
 }
 </script>

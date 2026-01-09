@@ -5,12 +5,15 @@
       v-bind="$attrs"
       @popup="handlePopup"
       @closePopup="handleClosePopup" />
+    <administrative-divisions />
     <ol-popup ref="popup" :title :position :offset :propeties :popupInfo />
   </div>
 </template>
 
 <script setup>
 import { getCenter } from 'ol/extent';
+
+import { getLayerByName, clearSource } from '@/utils/common.js';
 
 //弹窗
 let title = ref('');
@@ -24,6 +27,8 @@ let propeties = ref([
 let popupInfo = ref({});
 const popup = ref(null);
 
+let highlightSource = null;
+
 const isMapCreated = ref(false);
 const state = shallowReactive({
   map: null,
@@ -35,18 +40,25 @@ provide('isMapCreated', isMapCreated);
 function mapCreated(map) {
   state.map = map;
   isMapCreated.value = true;
+  highlightSource = getLayerByName(map, 'highlight').getSource();
 }
 
 function mapClick(evt) {
   // console.log('点击了地图');
-  // const [lng, lat] = evt.coordinate;
+  const lngLat = evt.coordinate;
   const pickedFeature = state.map.forEachFeatureAtPixel(
     evt.pixel,
     (feature) => feature,
   );
   if (pickedFeature) {
+    if (lngLat) {
+      clearSource(highlightSource);
+      const clonedFeature = pickedFeature.clone();
+      clonedFeature.setStyle(undefined);
+      highlightSource.addFeature(clonedFeature);
+    }
     const properties = pickedFeature.getProperties();
-    onPopup(properties);
+    onPopup(properties, lngLat);
   }
 }
 
@@ -54,11 +66,11 @@ function handlePopup(data) {
   onPopup(data);
 }
 
-function onPopup(properties) {
+function onPopup(properties, lngLat) {
   if (Object.keys(properties).includes('bounds')) {
     popupInfo.value = properties;
     title.value = properties.label;
-    position.value = getCenter(properties.bounds);
+    position.value = lngLat ? lngLat : getCenter(properties.bounds);
   }
 }
 
