@@ -1,6 +1,7 @@
 <template>
   <div class="zones-render">
     <el-tree
+      ref="treeRef"
       class="custom-tree"
       :data
       node-key="id"
@@ -53,6 +54,8 @@ const props = defineProps({
 const state = inject('state');
 const isMapCreated = inject('isMapCreated');
 
+const treeRef = ref(null);
+
 const emits = defineEmits(['popup', 'closePopup']);
 
 const defaultCheckedKeys = ref(getCheckedIds(props.data));
@@ -88,11 +91,17 @@ watch(isMapCreated, (val) => {
 watch(
   () => props.visible,
   (val) => {
+    // 切换到对应标签页，对应的图层才显示，若有高亮，则清除高亮
     layer.setVisible(val);
     clearSource(highlightSource);
     if (val) {
+      // 切换显示新标签页时，fit中国范围，并关闭弹窗
       fitChinaExtent();
       emits('closePopup');
+      // 切换标签页时，取消选中的node节点项
+      if (treeRef.value.getCurrentKey()) {
+        treeRef.value.setCurrentKey(null);
+      }
     }
   },
 );
