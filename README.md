@@ -8,6 +8,10 @@
 
 访问地址：[https://gisnotes.github.io/cgcs2000-projection-zones/](https://gisnotes.github.io/cgcs2000-projection-zones/)
 
+- 最新效果界面：
+![2026-01-09 效果](./assets/images/PixPin_2026-01-09_13-06-15.jpg)
+
+- 2026-01-04 效果
 ![2026-01-04 效果](./assets/images/PixPin_2026-01-04_14-22-28.png)
 
 # 提交记录
@@ -15,3 +19,4 @@
 2. [分度带的可视化 + 属性弹窗](https://github.com/gisnotes/cgcs2000-projection-zones/commit/d5659c6ce6f779a23bea6d023b6bc2a71c465292)
 3. [增加窗口折叠功能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/f7ed7a4272cbaecdaacf9293b3e66a0fe1bfc667)
 4. [分度带分类可视化](https://github.com/gisnotes/cgcs2000-projection-zones/commit/059cf37bcd6be7494a30fa27b54394a8343c9943)
+5. [增加行政区划查询及定位显示](https://github.com/gisnotes/cgcs2000-projection-zones/commit/1915f5abcbcab4f53896b9630fbd0361d053d85f)
