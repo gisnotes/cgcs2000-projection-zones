@@ -20,3 +20,4 @@
 3. [增加窗口折叠功能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/f7ed7a4272cbaecdaacf9293b3e66a0fe1bfc667)
 4. [分度带分类可视化](https://github.com/gisnotes/cgcs2000-projection-zones/commit/059cf37bcd6be7494a30fa27b54394a8343c9943)
 5. [增加行政区划查询及定位显示](https://github.com/gisnotes/cgcs2000-projection-zones/commit/1915f5abcbcab4f53896b9630fbd0361d053d85f)
+6. [将数据处理为topojson加载，提高加载速度](https://github.com/gisnotes/cgcs2000-projection-zones/commit/4fe6dba2f898feb6dce3c2d1845b12128fc98dba)
