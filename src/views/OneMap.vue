@@ -1,11 +1,15 @@
 <template>
-  <div class="wrap">
+  <div
+    class="wrap"
+    v-loading.lock="loading"
+    element-loading-text="拼命加载中..."
+    element-loading-background="rgba(122, 122, 122, 0.8)">
     <tdt-map @mapCreated="mapCreated" @mapClick="mapClick" />
     <projection-zones
       v-bind="$attrs"
       @popup="handlePopup"
       @closePopup="handleClosePopup" />
-    <administrative-divisions />
+    <administrative-divisions @dataLoaded="dataLoaded" />
     <ol-popup
       ref="popup"
       :title
@@ -43,6 +47,8 @@ const state = shallowReactive({
 
 provide('state', state);
 provide('isMapCreated', isMapCreated);
+
+const loading = ref(true);
 
 function mapCreated(map) {
   state.map = map;
@@ -88,10 +94,18 @@ function closePopup() {
 function handleClosePopup() {
   popup.value?.close();
 }
+
+function dataLoaded() {
+  loading.value = false;
+}
 </script>
 
 <style lang="scss" scoped>
 .wrap {
   height: 100%;
+}
+
+.el-loading-mask {
+  z-index: 9999;
 }
 </style>

@@ -43,7 +43,8 @@
 
 <script setup>
 import Feature from 'ol/Feature.js';
-import GeoJSON from 'ol/format/GeoJSON.js';
+// import GeoJSON from 'ol/format/GeoJSON.js';
+import TopoJSON from 'ol/format/TopoJSON.js';
 
 import {
   addBizLayer,
@@ -76,18 +77,18 @@ let source = null;
 let provinceFeatureArray = [];
 let cityFeatureArray = [];
 let countyFeatureArray = [];
-const geojsonFormat = new GeoJSON();
+const topojsonFormat = new TopoJSON();
 
 const readTasks = [
-  { url: './data/中国_省.geojson', type: 'province' },
-  { url: './data/中国_市.geojson', type: 'city' },
-  { url: './data/中国_县.geojson', type: 'county' },
+  { url: './data/中国_省.json', type: 'province' },
+  { url: './data/中国_市.json', type: 'city' },
+  { url: './data/中国_县.json', type: 'county' },
 ];
 
 const filterText = ref('');
 const treeRef = ref();
 
-const emits = defineEmits(['popup']);
+const emits = defineEmits(['popup', 'dataLoaded']);
 
 watch(filterText, (val) => {
   treeRef.value?.filter(val);
@@ -112,10 +113,11 @@ function init() {
     readTasks.map((task) =>
       readAdministrativeDivisionsData(task.url).then((res) => ({
         type: task.type,
-        features: geojsonFormat.readFeatures(res),
+        features: topojsonFormat.readFeatures(res),
       })),
     ),
   ).then((results) => {
+    emits('dataLoaded');
     results.forEach((result) => {
       if (result.status === 'fulfilled') {
         const { type, features } = result.value;

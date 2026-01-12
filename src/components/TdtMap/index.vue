@@ -1,10 +1,7 @@
 <template>
   <div
     class="map"
-    ref="mapDivRef"
-    v-loading.lock="loading"
-    element-loading-text="地图加载中..."
-    element-loading-background="rgba(122, 122, 122, 0.8)">
+    ref="mapDivRef">
     <el-segmented
       class="map-switch"
       v-model="mapType"
@@ -41,7 +38,6 @@ import 'ol/ol.css';
 
 import Tianditu from './tianditu.js';
 
-const loading = ref(false);
 let map, attribution, tdtInstance, vecLyrGrp, imgLyrGrp;
 let mapDivRef = ref();
 let mapClickEvtKey = null;
@@ -86,7 +82,6 @@ const graticuleLayer = new Graticule({
 onMounted(async () => {
   tdtInstance = new Tianditu();
   createMap();
-  loading.value = false;
   initMapEvt();
 });
 
@@ -206,10 +201,6 @@ function handleGraticuleSwitchChange(checked) {
     left: 8px;
     z-index: 2;
   }
-}
-
-.el-loading-mask {
-  z-index: 9999;
 }
 
 .graticule-switch {
