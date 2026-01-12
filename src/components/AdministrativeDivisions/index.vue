@@ -18,7 +18,7 @@
         style="margin: 6px 0 10px"
         placeholder="请输入关键字"
         clearable />
-      <div class="tree">
+      <div class="tree" v-loading="loading">
         <el-tree
           ref="treeRef"
           :data
@@ -61,16 +61,8 @@ const fold = ref(false);
 
 const data = ref([]);
 
+const loading = ref(false);
 const cgcs2000 = getItem('cgcs2000');
-
-if (cgcs2000) {
-  data.value = cgcs2000;
-} else {
-  getAdmistrativeDivisionsData().then((res) => {
-    data.value = res[0].children;
-    setItem('cgcs2000', res[0].children);
-  });
-}
 
 let map = null;
 let source = null;
@@ -109,6 +101,22 @@ const filterNode = (value, data) => {
 function init() {
   source = addBizLayer(map, undefined, 'administrative-divisions', 100);
 
+  if (cgcs2000) {
+    data.value = cgcs2000;
+  } else {
+    loading.value = true;
+    getAdmistrativeDivisionsData()
+      .then((res) => {
+        loading.value = false;
+        data.value = res[0].children;
+        setItem('cgcs2000', res[0].children);
+      })
+      .catch((err) => {
+        loading.value = false;
+        console.error(err);
+      });
+  }
+
   Promise.allSettled(
     readTasks.map((task) =>
       readAdministrativeDivisionsData(task.url).then((res) => ({
@@ -116,20 +124,25 @@ function init() {
         features: topojsonFormat.readFeatures(res),
       })),
     ),
-  ).then((results) => {
-    emits('dataLoaded');
-    results.forEach((result) => {
-      if (result.status === 'fulfilled') {
-        const { type, features } = result.value;
-        // 根据 type 参数赋值
-        if (type === 'province') provinceFeatureArray = features;
-        else if (type === 'city') cityFeatureArray = features;
-        else if (type === 'county') countyFeatureArray = features;
-      } else {
-        console.error(`[${result.reason.type}] 数据加载失败`, result.reason);
-      }
+  )
+    .then((results) => {
+      emits('dataLoaded');
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const { type, features } = result.value;
+          // 根据 type 参数赋值
+          if (type === 'province') provinceFeatureArray = features;
+          else if (type === 'city') cityFeatureArray = features;
+          else if (type === 'county') countyFeatureArray = features;
+        } else {
+          console.error(`[${result.reason.type}] 数据加载失败`, result.reason);
+        }
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      emits('dataLoaded');
     });
-  });
 }
 
 async function handleNodeClick(data) {
