@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="map"
-    ref="mapDivRef">
+  <div class="map" ref="mapDivRef">
     <el-segmented
       class="map-switch"
       v-model="mapType"
@@ -18,13 +16,18 @@
         inactive-text="关"
         @change="handleGraticuleSwitchChange" />
     </div>
+    <div class="realtime-coordinates" ref="realtimeCoordinatesRef">
+      实时坐标：
+    </div>
   </div>
 </template>
 
 <script setup>
 import Attribution from 'ol/control/Attribution.js';
 import { defaults as defaultControls } from 'ol/control/defaults.js';
+import MousePosition from 'ol/control/MousePosition.js';
 import ScaleLine from 'ol/control/ScaleLine.js';
+import { createStringXY } from 'ol/coordinate.js';
 import { defaults as defaultInteractions } from 'ol/interaction.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
 import Graticule from 'ol/layer/Graticule.js';
@@ -78,6 +81,8 @@ const graticuleLayer = new Graticule({
   lonLabelPosition: 0.05,
 });
 
+const realtimeCoordinatesRef = ref(null);
+
 //#region-------生命周期-------
 onMounted(async () => {
   tdtInstance = new Tianditu();
@@ -113,7 +118,14 @@ function createMap() {
     attribution: false,
     rotate: false,
     zoom: false,
-  }).extend([attribution, new ScaleLine()]);
+  }).extend([
+    attribution,
+    new ScaleLine(),
+    new MousePosition({
+      target: realtimeCoordinatesRef.value,
+      coordinateFormat: createStringXY(6),
+    }),
+  ]);
 
   const view = new View({
     center: [
@@ -219,8 +231,35 @@ function handleGraticuleSwitchChange(checked) {
     0 0 6px rgba(0, 0, 0, 0.04);
 }
 
-:deep(.ol-scale-line) {
+.realtime-coordinates {
+  width: 224px;
+  position: absolute;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #303133;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+:deep(.ol-scale-line) {
+  left: 280px;
+}
+
+:deep(.el-tag__content) {
+  width: 190px;
+  color: #303133;
+}
+
+/* 鼠标实时坐标组件样式自定义 */
+:deep(.ol-mouse-position) {
+  position: static;
+  flex: 1;
 }
 </style>
