@@ -9,6 +9,9 @@
 访问地址：[https://gisnotes.github.io/cgcs2000-projection-zones/](https://gisnotes.github.io/cgcs2000-projection-zones/)
 
 - 最新效果界面：
+![2026-01-13 效果](./assets/images/PixPin_2026-01-13_17-41-03.jpg)
+
+- 2026-01-09 效果：
 ![2026-01-09 效果](./assets/images/PixPin_2026-01-09_13-06-15.jpg)
 
 - 2026-01-04 效果
@@ -21,3 +24,4 @@
 4. [分度带分类可视化](https://github.com/gisnotes/cgcs2000-projection-zones/commit/059cf37bcd6be7494a30fa27b54394a8343c9943)
 5. [增加行政区划查询及定位显示](https://github.com/gisnotes/cgcs2000-projection-zones/commit/1915f5abcbcab4f53896b9630fbd0361d053d85f)
 6. [将数据处理为topojson加载，提高加载速度](https://github.com/gisnotes/cgcs2000-projection-zones/commit/4fe6dba2f898feb6dce3c2d1845b12128fc98dba)
+7. [增加鼠标实时坐标地图控件](https://github.com/gisnotes/cgcs2000-projection-zones/commit/eb6fc0166ef5100f5b311a6a3250e27c8696a30c)
