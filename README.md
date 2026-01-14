@@ -25,3 +25,4 @@
 5. [增加行政区划查询及定位显示](https://github.com/gisnotes/cgcs2000-projection-zones/commit/1915f5abcbcab4f53896b9630fbd0361d053d85f)
 6. [将数据处理为topojson加载，提高加载速度](https://github.com/gisnotes/cgcs2000-projection-zones/commit/4fe6dba2f898feb6dce3c2d1845b12128fc98dba)
 7. [增加鼠标实时坐标地图控件](https://github.com/gisnotes/cgcs2000-projection-zones/commit/eb6fc0166ef5100f5b311a6a3250e27c8696a30c)
+8. [采用 Map 来存储行政区划数据，优化性能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/6f340a881bf9ddd991f9e62762200dc78fc79210)
