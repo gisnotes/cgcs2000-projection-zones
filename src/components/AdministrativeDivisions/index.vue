@@ -42,17 +42,17 @@
 </template>
 
 <script setup>
-import Feature from 'ol/Feature.js';
-// import GeoJSON from 'ol/format/GeoJSON.js';
-import TopoJSON from 'ol/format/TopoJSON.js';
+import GeoJSON from 'ol/format/GeoJSON.js';
 
 import {
   addBizLayer,
   createPolygonStyle,
   getAdmistrativeDivisionsData,
   readAdministrativeDivisionsData,
+  clearSource,
 } from '@/utils/common.js';
 import { getItem, setItem } from '@/utils/storage/sessionStorage.js';
+import { onUnmounted } from 'vue';
 
 const state = inject('state');
 const isMapCreated = inject('isMapCreated');
@@ -66,15 +66,15 @@ const cgcs2000 = getItem('cgcs2000');
 
 let map = null;
 let source = null;
-let provinceFeatureArray = [];
-let cityFeatureArray = [];
-let countyFeatureArray = [];
-const topojsonFormat = new TopoJSON();
+const provinceMap = new Map();
+const cityMap = new Map();
+const countyMap = new Map();
+const geojsonReader = new GeoJSON();
 
 const readTasks = [
-  { url: './data/中国_省.json', type: 'province' },
-  { url: './data/中国_市.json', type: 'city' },
-  { url: './data/中国_县.json', type: 'county' },
+  { url: './data/中国_省.geojson', type: 'province' },
+  { url: './data/中国_市.geojson', type: 'city' },
+  { url: './data/中国_县.geojson', type: 'county' },
 ];
 
 const filterText = ref('');
@@ -121,22 +121,14 @@ function init() {
     readTasks.map((task) =>
       readAdministrativeDivisionsData(task.url).then((res) => ({
         type: task.type,
-        features: topojsonFormat.readFeatures(res),
+        features: res,
       })),
     ),
   )
     .then((results) => {
       emits('dataLoaded');
       results.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          const { type, features } = result.value;
-          // 根据 type 参数赋值
-          if (type === 'province') provinceFeatureArray = features;
-          else if (type === 'city') cityFeatureArray = features;
-          else if (type === 'county') countyFeatureArray = features;
-        } else {
-          console.error(`[${result.reason.type}] 数据加载失败`, result.reason);
-        }
+        handleAdministritiveData(result);
       });
     })
     .catch((err) => {
@@ -145,41 +137,70 @@ function init() {
     });
 }
 
-async function handleNodeClick(data) {
-  const { gb } = toRaw(data);
-  if (String(gb).endsWith('0000')) {
-    // console.log('这是一个省级编码');
-    showClickDivision(provinceFeatureArray, gb);
-  } else if (String(gb).endsWith('00') || String(gb).endsWith('000')) {
-    // console.log('这是一个市级编码');
-    showClickDivision(cityFeatureArray, gb);
+function handleAdministritiveData(result) {
+  if (result.status === 'fulfilled') {
+    const {
+      type,
+      features: { features: fs },
+    } = result.value;
+    fs.forEach((f) => handleData(type, f));
   } else {
-    // console.log('这是一个县级编码');
-    showClickDivision(countyFeatureArray, gb);
+    console.error(`[${result.reason.type}] 数据加载失败`, result.reason);
   }
 }
 
-function showClickDivision(featureArr, gb) {
-  const feature = featureArr.find((f) => f.getProperties().gb === gb);
-  if (feature instanceof Feature) {
-    const { name } = feature.getProperties();
-    if (source.getFeatures().length > 0) {
-      source.clear();
-    }
-    feature.setStyle(
-      createPolygonStyle('rgba(0, 0, 255, 0.2)', 'rgba(0, 0, 255)', 1.25, name),
-    );
-    source.addFeature(feature);
-    map.getView().fit(feature.getGeometry(), {
-      duration: 300,
-      padding: [20, 50 + 30 + 260, 20, 50 + 400],
-    });
+function handleData(type, f) {
+  const {
+    properties: { gb },
+  } = f;
+  if (type === 'province') {
+    provinceMap.set(gb, f);
+  } else if (type === 'city') {
+    cityMap.set(gb, f);
+  } else if (type === 'county') {
+    countyMap.set(gb, f);
   }
+}
+
+async function handleNodeClick(data) {
+  const { gb, name } = toRaw(data);
+  let feature;
+  if (String(gb).endsWith('0000')) {
+    // console.log('这是一个省级编码');
+    feature = provinceMap.get(gb);
+  } else if (String(gb).endsWith('00') || String(gb).endsWith('000')) {
+    // console.log('这是一个市级编码');
+    feature = cityMap.get(gb);
+  } else {
+    // console.log('这是一个县级编码');
+    feature = countyMap.get(gb);
+  }
+  showClickDivision(feature, name);
+}
+
+function showClickDivision(feature, name) {
+  clearSource(source);
+  const division = geojsonReader.readFeature(feature);
+  division.setStyle(
+    createPolygonStyle('rgba(0, 0, 255, 0.2)', 'rgb(0, 0, 255)', 1.25, name),
+  );
+  source.addFeature(division);
+  map.getView().fit(division.getGeometry(), {
+    duration: 300,
+    padding: [20, 50 + 30 + 260, 20, 50 + 400],
+  });
 }
 
 function handleFold() {
   fold.value = !fold.value;
 }
+
+onUnmounted(() => {
+  clearSource(source);
+  provinceMap.clear();
+  cityMap.clear();
+  countyMap.clear();
+});
 </script>
 
 <style lang="scss" scoped>

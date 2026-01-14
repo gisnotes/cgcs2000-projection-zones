@@ -16,7 +16,10 @@
         inactive-text="关"
         @change="handleGraticuleSwitchChange" />
     </div>
-    <div class="realtime-coordinates" ref="realtimeCoordinatesRef">
+    <div
+      class="realtime-coordinates"
+      ref="realtimeCoordinatesRef"
+      v-show="lngLat">
       实时坐标：
     </div>
   </div>
@@ -45,6 +48,7 @@ let map, attribution, tdtInstance, vecLyrGrp, imgLyrGrp;
 let mapDivRef = ref();
 let mapClickEvtKey = null;
 let mapCheckSizeEvtKey = null;
+const lngLat = ref(null);
 
 const CHINA_BBOX = [73.62, 16.7, 134.77, 53.56];
 
@@ -123,7 +127,13 @@ function createMap() {
     new ScaleLine(),
     new MousePosition({
       target: realtimeCoordinatesRef.value,
-      coordinateFormat: createStringXY(6),
+      coordinateFormat: (coord) => {
+        if (!lngLat.value) {
+          lngLat.value = coord;
+        }
+        const stringifyFunc = createStringXY(6);
+        return stringifyFunc(coord);
+      },
     }),
   ]);
 
@@ -232,7 +242,7 @@ function handleGraticuleSwitchChange(checked) {
 }
 
 .realtime-coordinates {
-  width: 224px;
+  width: 225px;
   position: absolute;
   bottom: 8px;
   left: 50%;
@@ -250,11 +260,6 @@ function handleGraticuleSwitchChange(checked) {
 
 :deep(.ol-scale-line) {
   left: 280px;
-}
-
-:deep(.el-tag__content) {
-  width: 190px;
-  color: #303133;
 }
 
 /* 鼠标实时坐标组件样式自定义 */
