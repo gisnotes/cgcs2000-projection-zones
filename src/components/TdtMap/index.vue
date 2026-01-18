@@ -242,7 +242,7 @@ function handleGraticuleSwitchChange(checked) {
 }
 
 .realtime-coordinates {
-  width: 225px;
+  width: 230px;
   position: absolute;
   bottom: 8px;
   left: 50%;
