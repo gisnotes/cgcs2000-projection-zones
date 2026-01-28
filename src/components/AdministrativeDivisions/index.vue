@@ -18,7 +18,10 @@
         style="margin: 6px 0 10px"
         placeholder="请输入关键字"
         clearable />
-      <div class="tree" v-loading="loading">
+      <div
+        class="tree"
+        v-loading.lock="loading"
+        element-loading-text="数据加载中...">
         <el-tree
           ref="treeRef"
           :data
@@ -43,44 +46,32 @@
 
 <script setup>
 import GeoJSON from 'ol/format/GeoJSON.js';
-
 import {
   addBizLayer,
-  createPolygonStyle,
-  getAdmistrativeDivisionsData,
-  readAdministrativeDivisionsData,
   clearSource,
+  createPolygonStyle,
+  getAdmistrativeBoundsData,
+  getAdmistrativeDivisionsData,
 } from '@/utils/common.js';
-import { getItem, setItem } from '@/utils/storage/sessionStorage.js';
-import { onUnmounted } from 'vue';
+import { onUnmounted, inject, ref, watch, toRaw } from 'vue';
+import { setItem, getItem } from '@/utils/storage/localForage';
 
 const state = inject('state');
 const isMapCreated = inject('isMapCreated');
 
 const fold = ref(false);
-
 const data = ref([]);
-
 const loading = ref(false);
-const cgcs2000 = getItem('cgcs2000');
 
 let map = null;
 let source = null;
-const provinceMap = new Map();
-const cityMap = new Map();
-const countyMap = new Map();
 const geojsonReader = new GeoJSON();
-
-const readTasks = [
-  { url: './data/中国_省.geojson', type: 'province' },
-  { url: './data/中国_市.geojson', type: 'city' },
-  { url: './data/中国_县.geojson', type: 'county' },
-];
 
 const filterText = ref('');
 const treeRef = ref();
 
-const emits = defineEmits(['popup', 'dataLoaded']);
+// 保持 Worker 引用
+let worker = null;
 
 watch(filterText, (val) => {
   treeRef.value?.filter(val);
@@ -98,93 +89,95 @@ const filterNode = (value, data) => {
   return data.name.includes(value);
 };
 
-function init() {
-  source = addBizLayer(map, undefined, 'administrative-divisions', 100);
+/**
+ * 初始化 Worker
+ */
+function initWorker() {
+  if (!worker) {
+    worker = new Worker(new URL('./coordinate-worker.js', import.meta.url), {
+      type: 'module',
+    });
+  }
+}
 
-  if (cgcs2000) {
-    data.value = cgcs2000;
+/**
+ * 封装 Worker 通信为 Promise
+ */
+function requestTransform(feature) {
+  initWorker();
+  return new Promise((resolve) => {
+    worker.onmessage = (e) => {
+      resolve(e.data.transformedFeature);
+    };
+    worker.postMessage({ feature });
+  });
+}
+
+async function init() {
+  source = addBizLayer(map, undefined, 'administrative-divisions', 100);
+  const cachedTree = await getItem('cgcs2000');
+
+  if (cachedTree) {
+    data.value = cachedTree;
   } else {
     loading.value = true;
-    getAdmistrativeDivisionsData()
-      .then((res) => {
-        loading.value = false;
-        data.value = res[0].children;
-        setItem('cgcs2000', res[0].children);
-      })
-      .catch((err) => {
-        loading.value = false;
-        console.error(err);
-      });
-  }
-
-  Promise.allSettled(
-    readTasks.map((task) =>
-      readAdministrativeDivisionsData(task.url).then((res) => ({
-        type: task.type,
-        features: res,
-      })),
-    ),
-  )
-    .then((results) => {
-      emits('dataLoaded');
-      results.forEach((result) => {
-        handleAdministritiveData(result);
-      });
-    })
-    .catch((err) => {
-      console.error(err);
-      emits('dataLoaded');
-    });
-}
-
-function handleAdministritiveData(result) {
-  if (result.status === 'fulfilled') {
-    const {
-      type,
-      features: { features: fs },
-    } = result.value;
-    fs.forEach((f) => handleData(type, f));
-  } else {
-    console.error(`[${result.reason.type}] 数据加载失败`, result.reason);
+    try {
+      const res = await getAdmistrativeDivisionsData();
+      // 注意：这里根据你接口返回的数据结构调整 (res.children 或 res[0].children)
+      const treeData = res.children || (res[0] && res[0].children);
+      data.value = treeData;
+      await setItem('cgcs2000', treeData);
+    } catch (err) {
+      console.error('初始化行政区划树失败:', err);
+    } finally {
+      loading.value = false;
+    }
   }
 }
 
-function handleData(type, f) {
-  const {
-    properties: { gb },
-  } = f;
-  if (type === 'province') {
-    provinceMap.set(gb, f);
-  } else if (type === 'city') {
-    cityMap.set(gb, f);
-  } else if (type === 'county') {
-    countyMap.set(gb, f);
-  }
-}
+async function handleNodeClick(nodeData) {
+  const { gb, name } = toRaw(nodeData);
+  const code = String(gb).slice(3);
+  const storageKey = `bound_${code}`;
 
-async function handleNodeClick(data) {
-  const { gb, name } = toRaw(data);
   let feature;
-  if (String(gb).endsWith('0000')) {
-    // console.log('这是一个省级编码');
-    feature = provinceMap.get(gb);
-  } else if (String(gb).endsWith('00') || String(gb).endsWith('000')) {
-    // console.log('这是一个市级编码');
-    feature = cityMap.get(gb);
-  } else {
-    // console.log('这是一个县级编码');
-    feature = countyMap.get(gb);
+
+  try {
+    // 1. 优先从本地数据库获取
+    feature = await getItem(storageKey);
+
+    if (!feature) {
+      loading.value = true;
+      // 2. 数据库没有，则请求接口
+      const rawFeature = await getAdmistrativeBoundsData(code);
+
+      // 3. 此时坐标是 GCJ02，通过 Worker 转换
+      feature = await requestTransform(rawFeature);
+
+      // 4. 将转换后的 WGS84 数据存入数据库，下次直接使用
+      await setItem(storageKey, feature);
+      loading.value = false;
+    }
+
+    // 5. 地图渲染
+    if (feature) {
+      showClickDivision(feature, name);
+    }
+  } catch (error) {
+    console.error('处理行政区划点击失败:', error);
+    loading.value = false;
   }
-  showClickDivision(feature, name);
 }
 
 function showClickDivision(feature, name) {
   clearSource(source);
   const division = geojsonReader.readFeature(feature);
+
   division.setStyle(
     createPolygonStyle('rgba(0, 0, 255, 0.2)', 'rgb(0, 0, 255)', 1.25, name),
   );
   source.addFeature(division);
+
   map.getView().fit(division.getGeometry(), {
     duration: 300,
     padding: [20, 50 + 30 + 260, 20, 50 + 400],
@@ -197,9 +190,11 @@ function handleFold() {
 
 onUnmounted(() => {
   clearSource(source);
-  provinceMap.clear();
-  cityMap.clear();
-  countyMap.clear();
+  // 组件销毁时彻底关闭线程
+  if (worker) {
+    worker.terminate();
+    worker = null;
+  }
 });
 </script>
 

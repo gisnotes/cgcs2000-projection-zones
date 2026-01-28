@@ -31,7 +31,6 @@ export function getAdmistrativeDivisionsData() {
     axios
       .get('https://cloudcenter.tianditu.gov.cn/api/portal/region/menu')
       .then((response) => {
-        resolve(response.data.data);
         if (response.data.status == 200) {
           resolve(response.data.data?.length ? response.data.data[0] : []);
         } else {
@@ -104,5 +103,24 @@ export function createPolygonStyle(fillColor, strokeColor, strokeWidth, text) {
             padding: [2, 2, 2, 2],
           })
         : undefined,
+  });
+}
+
+export function getAdmistrativeBoundsData(code) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`https://geo.datav.aliyun.com/areas_v3/bound/${code}.json`)
+      .then((response) => {
+        resolve(
+          response.data.features?.length ? response.data.features[0] : [],
+        );
+      })
+      .catch((error) => {
+        ElMessage({
+          message: '请求失败：' + error.message,
+          type: 'error',
+        });
+        reject(error);
+      });
   });
 }
