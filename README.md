@@ -27,3 +27,8 @@
 7. [增加鼠标实时坐标地图控件](https://github.com/gisnotes/cgcs2000-projection-zones/commit/eb6fc0166ef5100f5b311a6a3250e27c8696a30c)
 8. [采用 Map 来存储行政区划数据，优化性能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/6f340a881bf9ddd991f9e62762200dc78fc79210)
 9. [行政区划边界获取改为DataV的线上请求，做了indexDB缓存，并使用了web worker处理坐标纠偏](https://github.com/gisnotes/cgcs2000-projection-zones/commit/84f33c34f6325ce95c9550fbaf0de7acd65a4384)
+10. [解决发布github线上请求dataV接口报403的错误](https://github.com/gisnotes/cgcs2000-projection-zones/commit/0770c36797234ee7f8660a4b6167afd5e1a68e76)
+
+# 说明
+- 行政区划请求接口采用的[DataV数据可视化平台](https://datav.aliyun.com/portal/school/atlas/area_selector)
+- 纠偏采用的第三方库[gcoord](https://www.npmjs.com/package/gcoord)
