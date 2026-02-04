@@ -19,30 +19,35 @@
             <zones-render
               v-bind="$attrs"
               :data="PROJECTIONS_2000"
+              :name="'cgcs2000'"
               :visible="activeName === 'cgcs2000'" />
           </el-tab-pane>
           <el-tab-pane label="3度分带-无带号" name="degree3WithoutZone">
             <zones-render
               v-bind="$attrs"
               :data="PROJECTIONS_3_DEGREE_NO_ZONE"
+              :name="'degree3WithoutZone'"
               :visible="activeName === 'degree3WithoutZone'" />
           </el-tab-pane>
           <el-tab-pane label="3度分带-有带号" name="degree3WithZone">
             <zones-render
               v-bind="$attrs"
               :data="PROJECTIONS_3_DEGREE"
+              :name="'degree3WithZone'"
               :visible="activeName === 'degree3WithZone'" />
           </el-tab-pane>
           <el-tab-pane label="6度分带-无带号" name="degree6WithoutZone">
             <zones-render
               v-bind="$attrs"
               :data="PROJECTIONS_6_DEGREE_NO_ZONE"
+              :name="'degree6WithoutZone'"
               :visible="activeName === 'degree6WithoutZone'" />
           </el-tab-pane>
           <el-tab-pane label="6度分带-有带号" name="degree6WithZone">
             <zones-render
               v-bind="$attrs"
               :data="PROJECTIONS_6_DEGREE"
+              :name="'degree6WithZone'"
               :visible="activeName === 'degree6WithZone'" />
           </el-tab-pane>
         </el-tabs>

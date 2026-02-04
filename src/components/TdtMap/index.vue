@@ -73,7 +73,7 @@ const typeOptions = [
   },
 ];
 
-const graticuleSwitchVal = ref(true);
+const graticuleSwitchVal = ref(false);
 const graticuleLayer = new Graticule({
   strokeStyle: new Stroke({
     color: 'rgba(255,120,0,0.9)',
@@ -242,7 +242,7 @@ function handleGraticuleSwitchChange(checked) {
 }
 
 .realtime-coordinates {
-  width: 230px;
+  width: auto;
   position: absolute;
   bottom: 8px;
   left: 50%;

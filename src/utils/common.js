@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Vector as VectorSource } from 'ol/source.js';
-import { Vector as VectorLayer } from 'ol/layer.js';
+import { VectorImage as VectorLayer } from 'ol/layer.js';
 import { Style, Fill, Stroke, Text } from 'ol/style.js';
 
 /**

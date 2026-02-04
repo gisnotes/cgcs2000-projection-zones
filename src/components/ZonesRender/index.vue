@@ -18,14 +18,15 @@
 </template>
 
 <script setup>
-import { Vector as VectorSource } from 'ol/source.js';
-import { Vector as VectorLayer } from 'ol/layer.js';
 import Feature from 'ol/Feature.js';
+import { LineString } from 'ol/geom.js';
 import { fromExtent } from 'ol/geom/Polygon';
-import { Style, Fill, Stroke } from 'ol/style.js';
+import { Vector as VectorLayer } from 'ol/layer.js';
+import { Vector as VectorSource } from 'ol/source.js';
+import { Fill, Stroke, Style, Text } from 'ol/style.js';
 
+import { clearSource, getLayerByName } from '@/utils/common.js';
 import { CHINA_2000_EXTENT, getCheckedIds } from './utils.js';
-import { getLayerByName, clearSource } from '@/utils/common.js';
 
 const props = defineProps({
   treeDefaultProps: {
@@ -65,11 +66,11 @@ let highlightSource = null;
 const source = new VectorSource({ wrapX: false });
 const style = new Style({
   fill: new Fill({
-    color: 'rgba(255, 0, 0, 0.1)',
+    color: 'rgba(255, 0, 0, 0.05)',
   }),
   stroke: new Stroke({
-    color: '#ff0000',
-    width: 1,
+    color: 'rgba(255, 0, 0)',
+    width: 0.5,
   }),
 });
 const layer = new VectorLayer({
@@ -77,7 +78,33 @@ const layer = new VectorLayer({
   zIndex: 99,
   visible: props.visible,
   properties: {
-    name: props.name,
+    name: `${props.name}-zone`,
+  },
+});
+
+const cmSource = new VectorSource({ wrapX: false });
+const cmStyle = new Style({
+  stroke: new Stroke({
+    color: 'rgba(255, 0, 0)',
+    width: 1,
+    lineDash: [10, 10],
+  }),
+  text: new Text({
+    placement: 'line',
+    textAlign: 'center',
+    textBaseline: 'middle',
+    font: 'bold 11px sans-serif',
+    fill: new Fill({ color: 'red' }),
+    stroke: new Stroke({ color: 'white', width: 3 }),
+    overflow: true,
+  }),
+});
+const cmLayer = new VectorLayer({
+  cmSource,
+  zIndex: 99,
+  visible: props.visible,
+  properties: {
+    name: `${props.name}-cm`,
   },
 });
 
@@ -109,15 +136,18 @@ watch(
 function init() {
   highlightSource = getLayerByName(map, 'highlight').getSource();
   map.addLayer(layer);
+  map.addLayer(cmLayer);
 
   props.data.forEach((item) => {
     if (item?.bounds) {
       renderBounds(item);
+      renderCentralMeridianLine(item);
     }
     if (item?.children?.length) {
       item.children.forEach((child) => {
         if (child?.bounds) {
           renderBounds(child);
+          renderCentralMeridianLine(child);
         }
       });
     }
@@ -136,6 +166,16 @@ function renderBounds(item) {
   feature.setProperties({ ...item });
   source.addFeature(feature);
 }
+
+function renderCentralMeridianLine(item) {
+  const lineCoordinates = getCentralMeridianPoints(item.bounds);
+  const cmFeature = new Feature({ geometry: new LineString(lineCoordinates) });
+  const newCmStyle = cmStyle.clone();
+  newCmStyle.getText().setText(item.centralMeridian ?? '');
+  cmFeature.setStyle(newCmStyle);
+  source.addFeature(cmFeature);
+}
+
 function handleNodeClick(data) {
   if (!data.bounds) {
     return;
@@ -161,4 +201,22 @@ function fitChinaExtent() {
     padding: [20, 50 + 30 + 260, 20, 50 + 400],
   });
 }
+
+const getCentralMeridianPoints = (extent, stretchLength = 2) => {
+  if (!Array.isArray(extent) || extent.length !== 4) {
+    return null;
+  }
+
+  const [minX, minY, maxX, maxY] = extent;
+
+  // 计算 X 轴中点 (Easting 中点)
+  const isLastZone = minX === 132.0 || minX === 133.5;
+  const centerX = isLastZone ? 135 : (minX + maxX) / 2;
+
+  // 返回格式：[ [x, y_max], [x, y_min] ]
+  return [
+    [centerX, maxY + stretchLength], // 上边点 (Top Center)
+    [centerX, minY - stretchLength], // 下边点 (Bottom Center)
+  ];
+};
 </script>

@@ -20,6 +20,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4534,
         bounds: [73.62, 35.81, 76.5, 40.65],
         checked: true,
+        centralMeridian: '75°E',
       },
       {
         id: 2,
@@ -27,6 +28,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4535,
         bounds: [76.5, 31.03, 79.5, 41.83],
         checked: true,
+        centralMeridian: '78°E',
       },
       {
         id: 3,
@@ -34,6 +36,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4536,
         bounds: [79.5, 29.95, 82.51, 45.88],
         checked: true,
+        centralMeridian: '81°E',
       },
       {
         id: 4,
@@ -41,6 +44,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4537,
         bounds: [82.5, 28.26, 85.5, 47.23],
         checked: true,
+        centralMeridian: '84°E',
       },
       {
         id: 5,
@@ -48,6 +52,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4538,
         bounds: [85.5, 27.8, 88.5, 49.18],
         checked: true,
+        centralMeridian: '87°E',
       },
       {
         id: 6,
@@ -55,6 +60,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4539,
         bounds: [88.49, 27.32, 91.51, 48.42],
         checked: true,
+        centralMeridian: '90°E',
       },
       {
         id: 7,
@@ -62,6 +68,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4540,
         bounds: [91.5, 27.71, 94.5, 45.13],
         checked: true,
+        centralMeridian: '93°E',
       },
       {
         id: 8,
@@ -69,6 +76,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4541,
         bounds: [94.5, 28.23, 97.51, 44.5],
         checked: true,
+        centralMeridian: '96°E',
       },
       {
         id: 9,
@@ -76,6 +84,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4542,
         bounds: [97.5, 21.43, 100.5, 42.76],
         checked: true,
+        centralMeridian: '99°E',
       },
       {
         id: 10,
@@ -83,6 +92,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4543,
         bounds: [100.5, 21.13, 103.5, 42.69],
         checked: true,
+        centralMeridian: '102°E',
       },
       {
         id: 11,
@@ -90,6 +100,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4544,
         bounds: [103.5, 22.5, 106.51, 42.21],
         checked: true,
+        centralMeridian: '105°E',
       },
       {
         id: 12,
@@ -97,6 +108,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4545,
         bounds: [106.5, 18.19, 109.51, 42.47],
         checked: true,
+        centralMeridian: '108°E',
       },
       {
         id: 13,
@@ -104,6 +116,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4546,
         bounds: [109.5, 18.11, 112.5, 45.11],
         checked: true,
+        centralMeridian: '111°E',
       },
       {
         id: 14,
@@ -111,6 +124,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4547,
         bounds: [112.5, 21.52, 115.5, 45.45],
         checked: true,
+        centralMeridian: '114°E',
       },
       {
         id: 15,
@@ -118,6 +132,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4548,
         bounds: [115.5, 22.6, 118.5, 49.88],
         checked: true,
+        centralMeridian: '117°E',
       },
       {
         id: 16,
@@ -125,6 +140,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4549,
         bounds: [118.5, 24.43, 121.5, 53.33],
         checked: true,
+        centralMeridian: '120°E',
       },
       {
         id: 17,
@@ -132,6 +148,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4550,
         bounds: [121.5, 28.22, 124.5, 53.56],
         checked: true,
+        centralMeridian: '123°E',
       },
       {
         id: 18,
@@ -139,6 +156,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4551,
         bounds: [124.5, 40.19, 127.5, 53.2],
         checked: true,
+        centralMeridian: '126°E',
       },
       {
         id: 19,
@@ -146,6 +164,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4552,
         bounds: [127.5, 41.37, 130.5, 50.25],
         checked: true,
+        centralMeridian: '129°E',
       },
       {
         id: 20,
@@ -153,6 +172,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4553,
         bounds: [130.5, 42.42, 133.5, 48.88],
         checked: true,
+        centralMeridian: '132°E',
       },
       {
         id: 21,
@@ -160,6 +180,7 @@ export const PROJECTIONS_3_DEGREE_NO_ZONE = [
         code: 4554,
         bounds: [133.5, 45.85, 134.77, 48.4],
         checked: true,
+        centralMeridian: '135°E',
       },
     ],
   },
@@ -177,6 +198,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4513,
         bounds: [73.62, 35.81, 76.5, 40.65],
         checked: true,
+        centralMeridian: '75°E',
       },
       {
         id: 2,
@@ -184,6 +206,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4514,
         bounds: [76.5, 31.03, 79.5, 41.83],
         checked: true,
+        centralMeridian: '78°E',
       },
       {
         id: 3,
@@ -191,6 +214,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4515,
         bounds: [79.5, 29.95, 82.51, 45.88],
         checked: true,
+        centralMeridian: '81°E',
       },
       {
         id: 4,
@@ -198,6 +222,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4516,
         bounds: [82.5, 28.26, 85.5, 47.23],
         checked: true,
+        centralMeridian: '84°E',
       },
       {
         id: 5,
@@ -205,6 +230,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4517,
         bounds: [85.5, 27.8, 88.5, 49.18],
         checked: true,
+        centralMeridian: '87°E',
       },
       {
         id: 6,
@@ -212,6 +238,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4518,
         bounds: [88.49, 27.32, 91.51, 48.42],
         checked: true,
+        centralMeridian: '90°E',
       },
       {
         id: 7,
@@ -219,6 +246,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4519,
         bounds: [91.5, 27.71, 94.5, 45.13],
         checked: true,
+        centralMeridian: '93°E',
       },
       {
         id: 8,
@@ -226,6 +254,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4520,
         bounds: [94.5, 28.23, 97.51, 44.5],
         checked: true,
+        centralMeridian: '96°E',
       },
       {
         id: 9,
@@ -233,6 +262,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4521,
         bounds: [97.5, 21.43, 100.5, 42.76],
         checked: true,
+        centralMeridian: '99°E',
       },
       {
         id: 10,
@@ -240,6 +270,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4522,
         bounds: [100.5, 21.13, 103.5, 42.69],
         checked: true,
+        centralMeridian: '102°E',
       },
       {
         id: 11,
@@ -247,6 +278,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4523,
         bounds: [103.5, 22.5, 106.51, 42.21],
         checked: true,
+        centralMeridian: '105°E',
       },
       {
         id: 12,
@@ -254,6 +286,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4524,
         bounds: [106.5, 18.19, 109.51, 42.47],
         checked: true,
+        centralMeridian: '108°E',
       },
       {
         id: 13,
@@ -261,6 +294,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4525,
         bounds: [109.5, 18.11, 112.5, 45.11],
         checked: true,
+        centralMeridian: '111°E',
       },
       {
         id: 14,
@@ -268,6 +302,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4526,
         bounds: [112.5, 21.52, 115.5, 45.45],
         checked: true,
+        centralMeridian: '114°E',
       },
       {
         id: 15,
@@ -275,6 +310,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4527,
         bounds: [115.5, 22.6, 118.5, 49.88],
         checked: true,
+        centralMeridian: '117°E',
       },
       {
         id: 16,
@@ -282,6 +318,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4528,
         bounds: [118.5, 24.43, 121.5, 53.33],
         checked: true,
+        centralMeridian: '120°E',
       },
       {
         id: 17,
@@ -289,6 +326,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4529,
         bounds: [121.5, 28.22, 124.5, 53.56],
         checked: true,
+        centralMeridian: '123°E',
       },
       {
         id: 18,
@@ -296,6 +334,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4530,
         bounds: [124.5, 40.19, 127.5, 53.2],
         checked: true,
+        centralMeridian: '126°E',
       },
       {
         id: 19,
@@ -303,6 +342,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4531,
         bounds: [127.5, 41.37, 130.5, 50.25],
         checked: true,
+        centralMeridian: '129°E',
       },
       {
         id: 20,
@@ -310,6 +350,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4532,
         bounds: [130.5, 42.42, 133.5, 48.88],
         checked: true,
+        centralMeridian: '132°E',
       },
       {
         id: 21,
@@ -317,6 +358,7 @@ export const PROJECTIONS_3_DEGREE = [
         code: 4533,
         bounds: [133.5, 45.85, 134.77, 48.4],
         checked: true,
+        centralMeridian: '135°E',
       },
     ],
   },
@@ -334,6 +376,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4502,
         bounds: [73.62, 35.42, 78.01, 41.07],
         checked: true,
+        centralMeridian: '75°E',
       },
       {
         id: 2,
@@ -341,6 +384,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4503,
         bounds: [77.98, 29.16, 84.0, 47.23],
         checked: true,
+        centralMeridian: '81°E',
       },
       {
         id: 3,
@@ -348,6 +392,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4504,
         bounds: [84.0, 27.32, 90.0, 49.18],
         checked: true,
+        centralMeridian: '87°E',
       },
       {
         id: 4,
@@ -355,6 +400,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4505,
         bounds: [90.0, 27.71, 96.01, 47.9],
         checked: true,
+        centralMeridian: '93°E',
       },
       {
         id: 5,
@@ -362,6 +408,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4506,
         bounds: [96.0, 21.13, 102.01, 43.18],
         checked: true,
+        centralMeridian: '99°E',
       },
       {
         id: 6,
@@ -369,6 +416,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4507,
         bounds: [102.0, 17.75, 108.0, 42.47],
         checked: true,
+        centralMeridian: '105°E',
       },
       {
         id: 7,
@@ -376,6 +424,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4508,
         bounds: [108.0, 16.7, 114.0, 45.11],
         checked: true,
+        centralMeridian: '111°E',
       },
       {
         id: 8,
@@ -383,6 +432,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4509,
         bounds: [114.0, 19.02, 120.0, 51.52],
         checked: true,
+        centralMeridian: '117°E',
       },
       {
         id: 9,
@@ -390,6 +440,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4510,
         bounds: [120.0, 24.64, 126.0, 53.56],
         checked: true,
+        centralMeridian: '123°E',
       },
       {
         id: 10,
@@ -397,6 +448,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4511,
         bounds: [126.0, 29.7, 132.0, 52.79],
         checked: true,
+        centralMeridian: '129°E',
       },
       {
         id: 11,
@@ -404,6 +456,7 @@ export const PROJECTIONS_6_DEGREE_NO_ZONE = [
         code: 4512,
         bounds: [132.0, 45.02, 134.77, 48.4],
         checked: true,
+        centralMeridian: '135°E',
       },
     ],
   },
@@ -421,6 +474,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4491,
         bounds: [73.62, 35.42, 78.01, 41.07],
         checked: true,
+        centralMeridian: '75°E',
       },
       {
         id: 2,
@@ -428,6 +482,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4492,
         bounds: [77.98, 29.16, 84.0, 47.23],
         checked: true,
+        centralMeridian: '81°E',
       },
       {
         id: 3,
@@ -435,6 +490,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4493,
         bounds: [84.0, 27.32, 90.0, 49.18],
         checked: true,
+        centralMeridian: '87°E',
       },
       {
         id: 4,
@@ -442,6 +498,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4494,
         bounds: [90.0, 27.71, 96.01, 47.9],
         checked: true,
+        centralMeridian: '93°E',
       },
       {
         id: 5,
@@ -449,6 +506,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4495,
         bounds: [96.0, 21.13, 102.01, 43.18],
         checked: true,
+        centralMeridian: '99°E',
       },
       {
         id: 6,
@@ -456,6 +514,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4496,
         bounds: [102.0, 17.75, 108.0, 42.47],
         checked: true,
+        centralMeridian: '105°E',
       },
       {
         id: 7,
@@ -463,6 +522,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4497,
         bounds: [108.0, 16.7, 114.0, 45.11],
         checked: true,
+        centralMeridian: '111°E',
       },
       {
         id: 8,
@@ -470,6 +530,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4498,
         bounds: [114.0, 19.02, 120.0, 51.52],
         checked: true,
+        centralMeridian: '117°E',
       },
       {
         id: 9,
@@ -477,6 +538,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4499,
         bounds: [120.0, 24.64, 126.0, 53.56],
         checked: true,
+        centralMeridian: '123°E',
       },
       {
         id: 10,
@@ -484,6 +546,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4500,
         bounds: [126.0, 29.7, 132.0, 52.79],
         checked: true,
+        centralMeridian: '129°E',
       },
       {
         id: 11,
@@ -491,6 +554,7 @@ export const PROJECTIONS_6_DEGREE = [
         code: 4501,
         bounds: [132.0, 45.02, 134.77, 48.4],
         checked: true,
+        centralMeridian: '135°E',
       },
     ],
   },
