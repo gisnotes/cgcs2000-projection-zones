@@ -8,7 +8,10 @@
 
 访问地址：[https://gisnotes.github.io/cgcs2000-projection-zones/](https://gisnotes.github.io/cgcs2000-projection-zones/)
 
-- 最新效果界面：
+- 最新效果界面(增加了中央子午线绘制，默认不展示经纬网)：
+![2026-01-13 效果](./assets/images/PixPin_2026-02-04_17-40-42.jpg)
+
+- 2026-01-13界面：
 ![2026-01-13 效果](./assets/images/PixPin_2026-01-13_17-41-03.jpg)
 
 - 2026-01-09 效果：
