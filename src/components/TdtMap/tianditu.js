@@ -4,13 +4,19 @@ import { get as getProjection } from 'ol/proj';
 import { getTopLeft, getWidth } from 'ol/extent';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
 
+import { useTkStore } from '@/stores/tkStore.js';
+
 export default class Tianditu {
   #baseUrl = 'https://t{0-7}.tianditu.gov.cn/';
-  #tk = 'e1f2618711e8858b50bb0a1d4a715fa9';
+  #tkStore = useTkStore();
   #sourceGroupType = {
     vec: ['vec', 'cva'], // 矢量底图
     img: ['img', 'cia'], // 影像底图
   };
+
+  get tk() {
+    return this.#tkStore.tk;
+  }
 
   /**
    * 创建指定类型的图层组
@@ -28,7 +34,7 @@ export default class Tianditu {
       layers,
       visible,
       properties: {
-        name: type,
+        name: type + '-group',
       },
     });
   }
@@ -42,6 +48,9 @@ export default class Tianditu {
   createTileLayer(type) {
     return new TileLayer({
       source: this.createXYZSource(type),
+      properties: {
+        name: type,
+      },
     });
   }
 
@@ -52,16 +61,23 @@ export default class Tianditu {
    * @returns 返回XYZ数据源实例
    */
   createXYZSource(type) {
-    return new XYZ({
+    const source = new XYZ({
       url:
         this.#baseUrl +
         type +
         '_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=' +
         type +
         '&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=' +
-        this.#tk,
+        this.tk,
       tileGrid: createTileGrid(getProjection('EPSG:3857')),
     });
+    source.once('tileloaderror', () => {
+      ElMessage.error({
+        message: '天地图秘钥无效或已过期，请尝试更改秘钥',
+        duration: 3000,
+      });
+    });
+    return source;
   }
 }
 

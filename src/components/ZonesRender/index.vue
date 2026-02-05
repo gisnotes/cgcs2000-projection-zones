@@ -168,10 +168,11 @@ function renderBounds(item) {
 }
 
 function renderCentralMeridianLine(item) {
+  if (!item.centralMeridian) return;
   const lineCoordinates = getCentralMeridianPoints(item.bounds);
   const cmFeature = new Feature({ geometry: new LineString(lineCoordinates) });
   const newCmStyle = cmStyle.clone();
-  newCmStyle.getText().setText(item.centralMeridian ?? '');
+  newCmStyle.getText().setText(item.centralMeridian);
   cmFeature.setStyle(newCmStyle);
   source.addFeature(cmFeature);
 }
