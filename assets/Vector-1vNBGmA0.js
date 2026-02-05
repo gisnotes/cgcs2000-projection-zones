@@ -1,0 +1,1 @@
+import{n as e,t}from"./css-DaeO0X3J.js";var n=class extends t{constructor(e){super(e)}createRenderer(){return new e(this)}};export{n as t};
