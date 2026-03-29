@@ -1,11 +1,11 @@
 <template>
   <div>
-    <transition name=".el-zoom-in-center">
+    <transition name="el-zoom-in-center">
       <div class="projection-zones-fold" v-show="fold" @click="handleFold">
         <i-ep-Expand />
       </div>
     </transition>
-    <transition name=".el-zoom-in-center">
+    <transition name="el-zoom-in-center">
       <div class="projection-zones" v-show="!fold">
         <div class="header">
           <div class="title">投影分带</div>
@@ -65,7 +65,8 @@ import {
   PROJECTIONS_3_DEGREE,
 } from './data.js';
 
-const fold = ref(false);
+const fold = defineModel('fold');
+
 const activeName = ref('degree3WithoutZone');
 
 function handleFold() {

@@ -4,9 +4,11 @@
     <tdt-map @mapCreated="mapCreated" @mapClick="mapClick" />
     <!-- 分度带 -->
     <projection-zones
+      v-model:fold="foldProjectionZones"
       v-bind="$attrs"
       @popup="handlePopup"
-      @closePopup="handleClosePopup" />
+      @closePopup="handleClosePopup"
+      @show="" />
     <!-- 行政区划 -->
     <administrative-divisions />
     <!-- 弹窗 -->
@@ -19,17 +21,19 @@
       :popupInfo
       @close="closePopup" />
     <!-- 更改天地图秘钥 -->
-    <div class="tk-change">
-      <transition name="el-fade-in">
-        <el-button plain type="primary" v-if="!show" @click="handleShow">
+    <div
+      class="tk-change"
+      :style="{ left: foldProjectionZones ? '54px' : '406px' }">
+      <transition name="el-zoom-in-left">
+        <el-button plain type="primary" v-show="!show" @click="handleShow">
           变更天地图秘钥
           <el-icon class="el-icon--right">
             <Refresh />
           </el-icon>
         </el-button>
       </transition>
-      <transition name="el-fade-in">
-        <div class="input" v-if="show">
+      <transition name="el-zoom-in-left">
+        <div class="input" v-show="show">
           <el-input
             ref="inputRef"
             v-model="tk"
@@ -55,6 +59,8 @@ import { unByKey } from 'ol/Observable';
 
 import { useTkStore } from '@/stores/tkStore.js';
 import { clearSource, getLayerByName } from '@/utils/common.js';
+
+const foldProjectionZones = ref(false);
 
 //弹窗
 let title = ref('');
@@ -164,10 +170,9 @@ function handleSearch() {
 
   .tk-change {
     position: absolute;
-    left: 450px;
     top: 10px;
     z-index: 2;
-    transition: all 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out;
     display: flex;
     .input {
       width: 310px;

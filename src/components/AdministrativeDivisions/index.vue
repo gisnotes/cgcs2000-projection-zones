@@ -1,10 +1,10 @@
 <template>
-  <transition name=".el-zoom-in-center">
+  <transition name="el-zoom-in-center">
     <div class="projection-zones-fold" v-show="fold" @click="handleFold">
       <i-ep-Fold />
     </div>
   </transition>
-  <transition name=".el-zoom-in-center">
+  <transition name="el-zoom-in-center">
     <div class="projection-zones" v-show="!fold">
       <div class="header">
         <div class="title">行政区划</div>
@@ -227,7 +227,7 @@ onUnmounted(() => {
 
 .projection-zones {
   top: 8px;
-  right: 30px;
+  right: 8px;
   width: 260px;
   height: 500px;
   overflow: hidden;
