@@ -48,6 +48,8 @@
         </div>
       </transition>
     </div>
+    <!-- 显示行政区划extent -->
+    <division-extent />
   </div>
 </template>
 

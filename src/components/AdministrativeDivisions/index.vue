@@ -55,6 +55,9 @@ import {
 } from '@/utils/common.js';
 import { onUnmounted, inject, ref, watch, toRaw } from 'vue';
 import { setItem, getItem } from '@/utils/storage/localForage';
+import { useMapExtentStore } from '@/stores/mapExtentStore.js';
+
+const mapExtentStore = useMapExtentStore();
 
 const state = inject('state');
 const isMapCreated = inject('isMapCreated');
@@ -178,10 +181,15 @@ function showClickDivision(feature, name) {
   );
   source.addFeature(division);
 
-  map.getView().fit(division.getGeometry(), {
-    duration: 300,
-    padding: [20, 50 + 30 + 260, 20, 50 + 400],
-  });
+  const extent = division?.getGeometry()?.getExtent();
+  // console.log('🚀 | :187 | extent:', extent);
+  mapExtentStore.updateExtent(extent);
+
+  extent &&
+    map.getView().fit(extent, {
+      duration: 300,
+      padding: [20, 50 + 30 + 260, 20, 50 + 400],
+    });
 }
 
 function handleFold() {
