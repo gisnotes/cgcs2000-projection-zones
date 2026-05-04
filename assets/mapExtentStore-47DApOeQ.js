@@ -1,0 +1,1 @@
+import{t as e}from"./index-D8_Sm_ly.js";const t=e(`mapExtent`,{state:()=>({extent:[]}),actions:{updateExtent(e){e?.length&&(this.extent=e)}}});export{t};
