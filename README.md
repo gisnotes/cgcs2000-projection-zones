@@ -1,17 +1,15 @@
-# Vue 3 + Vite
-
-此模板将帮助您开始使用 Vite 开发 Vue 3 项目。该模板采用 Vue 3 `<script setup>` 单文件组件，请查阅 [script setup 文档](https://cn.vuejs.org/api/sfc-script-setup) 了解更多信息。
-
-了解更多关于 Vue 的 IDE 支持，请查阅[Vue 文档扩展指南中的 IDE 支持章节](https://cn.vuejs.org/guide/scaling-up/tooling#ide-support)。
-
 # 实现效果
 
 访问地址：[https://gisnotes.github.io/cgcs2000-projection-zones/](https://gisnotes.github.io/cgcs2000-projection-zones/)
 
+- 最新效果界面-2026-05-04(支持查询并复制行政区划的extent)：
+  ![2026-05-04 效果](./assets/images/PixPin_2026-05-04_19-13-22.png)
+
 - 最新效果界面-2026-02-05(支持增加天地图秘钥)：
-![2026-01-13 效果](./assets/images/PixPin_2026-02-05_15-43-03.jpg)
+  ![2026-01-13 效果](./assets/images/PixPin_2026-02-05_15-43-03.jpg)
 
 # 提交记录
+
 1. [项目初始化](https://github.com/gisnotes/cgcs2000-projection-zones/commit/d098db67ce6c2b3d20cea4793b7fb42a683ca594)
 2. [分度带的可视化 + 属性弹窗](https://github.com/gisnotes/cgcs2000-projection-zones/commit/d5659c6ce6f779a23bea6d023b6bc2a71c465292)
 3. [增加窗口折叠功能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/f7ed7a4272cbaecdaacf9293b3e66a0fe1bfc667)
@@ -23,8 +21,11 @@
 9. [行政区划边界获取改为DataV的线上请求，做了indexDB缓存，并使用了web worker处理坐标纠偏](https://github.com/gisnotes/cgcs2000-projection-zones/commit/84f33c34f6325ce95c9550fbaf0de7acd65a4384)
 10. [解决发布github线上请求dataV接口报403的错误](https://github.com/gisnotes/cgcs2000-projection-zones/commit/0770c36797234ee7f8660a4b6167afd5e1a68e76)
 11. [增加绘制中央子午线，默认关闭经纬网图层的显示](https://github.com/gisnotes/cgcs2000-projection-zones/commit/b463695df65cb74756f4b579498e91e97fb237c9)
-11. [支持增加天地图秘钥](https://github.com/gisnotes/cgcs2000-projection-zones/commit/b454d479631b698fae41de9c91d5d0aded0d84ce)
+12. [支持增加天地图秘钥](https://github.com/gisnotes/cgcs2000-projection-zones/commit/b454d479631b698fae41de9c91d5d0aded0d84ce)
+13. [增加显示选中行政区划的extent，并增加复制功能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/0255bc6b4d9ad099b78a2c620780ad11b2b8465c)
 
 # 说明
+
 - 行政区划请求接口采用的[DataV数据可视化平台](https://datav.aliyun.com/portal/school/atlas/area_selector)
 - 纠偏采用的第三方库[gcoord](https://www.npmjs.com/package/gcoord)
+- 复制使用了VueUse开发库的[useClipboard](https://vueuse.com/core/useClipboard/)
