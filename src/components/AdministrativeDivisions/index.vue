@@ -56,6 +56,7 @@ import {
 import { onUnmounted, inject, ref, watch, toRaw } from 'vue';
 import { setItem, getItem } from '@/utils/storage/localForage';
 import { useMapExtentStore } from '@/stores/mapExtentStore.js';
+import { getCenter } from 'ol/extent';
 
 const mapExtentStore = useMapExtentStore();
 
@@ -182,14 +183,14 @@ function showClickDivision(feature, name) {
   source.addFeature(division);
 
   const extent = division?.getGeometry()?.getExtent();
-  // console.log('🚀 | :187 | extent:', extent);
-  mapExtentStore.updateExtent(extent);
-
-  extent &&
+  if (extent?.length === 4) {
+    mapExtentStore.updateExtent(extent);
+    mapExtentStore.updateCenter(getCenter(extent));
     map.getView().fit(extent, {
       duration: 300,
       padding: [20, 50 + 30 + 260, 20, 50 + 400],
     });
+  }
 }
 
 function handleFold() {
