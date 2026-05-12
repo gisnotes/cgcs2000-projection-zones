@@ -2,8 +2,11 @@
 
 访问地址：[https://gisnotes.github.io/cgcs2000-projection-zones/](https://gisnotes.github.io/cgcs2000-projection-zones/)
 
+- 最新效果界面-2026-05-12(支持查询并复制行政区划的center)：
+  ![2026-05-04 效果](./assets/images/PixPin_2026-05-12_11-26-05.jpg)
+
 - 最新效果界面-2026-05-04(支持查询并复制行政区划的extent)：
-  ![2026-05-04 效果](./assets/images/PixPin_2026-05-04_19-13-22.png)
+  ![2026-05-04 效果](./assets/images/PixPin_2026-05-04_19-13-22.jpg)
 
 - 最新效果界面-2026-02-05(支持增加天地图秘钥)：
   ![2026-01-13 效果](./assets/images/PixPin_2026-02-05_15-43-03.jpg)
@@ -23,6 +26,9 @@
 11. [增加绘制中央子午线，默认关闭经纬网图层的显示](https://github.com/gisnotes/cgcs2000-projection-zones/commit/b463695df65cb74756f4b579498e91e97fb237c9)
 12. [支持增加天地图秘钥](https://github.com/gisnotes/cgcs2000-projection-zones/commit/b454d479631b698fae41de9c91d5d0aded0d84ce)
 13. [增加显示选中行政区划的extent，并增加复制功能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/0255bc6b4d9ad099b78a2c620780ad11b2b8465c)
+14. [完成行政区划中心点坐标的获取及复制功能](https://github.com/gisnotes/cgcs2000-projection-zones/commit/c47f2c4ee4323315dcc87735ed11bab76dc25c5f)
+15. [将行政区划查询更改为请求本地处理好的topojson，线上采用jsdelivr加速github的静态资源](https://github.com/gisnotes/cgcs2000-projection-zones/commit/bf0680ec2405c1c39e7875ed8ce0e1b9773a2c42)
+
 
 # 说明
 
