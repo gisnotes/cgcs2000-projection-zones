@@ -45,12 +45,12 @@
 </template>
 
 <script setup>
-import GeoJSON from 'ol/format/GeoJSON.js';
+import GeoJSON from 'ol/format/GeoJSON';
 import {
   addBizLayer,
   clearSource,
   createPolygonStyle,
-  getAdmistrativeBoundsData,
+  readAdministrativeDivisionsDataFromGb,
   getAdmistrativeDivisionsData,
 } from '@/utils/common.js';
 import { onUnmounted, inject, ref, watch, toRaw } from 'vue';
@@ -70,6 +70,8 @@ const loading = ref(false);
 let map = null;
 let source = null;
 const geojsonReader = new GeoJSON();
+
+const isDev = import.meta.env.DEV;
 
 const filterText = ref('');
 const treeRef = ref();
@@ -144,38 +146,56 @@ async function handleNodeClick(nodeData) {
   const code = String(gb).slice(3);
   const storageKey = `bound_${code}`;
 
-  let feature;
+  let featureGeoJSON;
+  let url = '';
 
   try {
-    // 1. 优先从本地数据库获取
-    feature = await getItem(storageKey);
+    // 优先从本地数据库获取 (此时拿到的是标准的 GeoJSON 对象)
+    featureGeoJSON = await getItem(storageKey);
 
-    if (!feature) {
+    // 若数据库没有，则请求接口
+    let type = '';
+    if (!featureGeoJSON) {
       loading.value = true;
-      // 2. 数据库没有，则请求接口
-      const rawFeature = await getAdmistrativeBoundsData(code);
-
-      // 3. 此时坐标是 GCJ02，通过 Worker 转换
-      feature = await requestTransform(rawFeature);
-
-      // 4. 将转换后的 WGS84 数据存入数据库，下次直接使用
-      await setItem(storageKey, feature);
-      loading.value = false;
+      if (String(gb).endsWith('0000')) {
+        type = '省';
+        // url = './data/中国_省.topojson';
+      } else if (String(gb).endsWith('00') || String(gb).endsWith('000')) {
+        type = '市';
+        // url = './data/中国_市.topojson';
+      } else {
+        type = '县';
+        // url = './data/中国_县.topojson';
+      }
+      const url = isDev
+        ? `./data/中国_${type}.topojson`
+        : `https://cdn.jsdelivr.net/gh/gisnotes/cgcs2000-projection-zones@main/public/data/中国_${type}.topojson`;
+      featureGeoJSON = await readAdministrativeDivisionsDataFromGb(url, gb);
     }
 
-    // 5. 地图渲染
-    if (feature) {
-      showClickDivision(feature, name);
+    if (featureGeoJSON) {
+      // 将标准的 GeoJSON 数据存入数据库
+      await setItem(storageKey, featureGeoJSON);
+      // 地图渲染
+      showClickDivision(featureGeoJSON, name);
+    } else {
+      ElMessage({
+        message: '未找到该行政区划数据',
+        type: 'error',
+      });
     }
   } catch (error) {
     console.error('处理行政区划点击失败:', error);
+  } finally {
     loading.value = false;
   }
 }
 
-function showClickDivision(feature, name) {
+function showClickDivision(featureGeoJSON, name) {
   clearSource(source);
-  const division = geojsonReader.readFeature(feature);
+
+  // 使用 geojsonReader 读取要素
+  const division = geojsonReader.readFeature(featureGeoJSON);
 
   division.setStyle(
     createPolygonStyle('rgba(0, 0, 255, 0.2)', 'rgb(0, 0, 255)', 1.25, name),

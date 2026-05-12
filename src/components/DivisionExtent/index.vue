@@ -1,29 +1,37 @@
 <template>
   <div class="division-extent" v-show="extentStore.extent.length">
-    <el-descriptions :column="1" :size="'small'" border>
-      <el-descriptions-item label-width="40px" label="minx">
-        {{ extentStore.extent[0] }}
-      </el-descriptions-item>
-      <el-descriptions-item label-width="40px" label="miny">
-        {{ extentStore.extent[1] }}
-      </el-descriptions-item>
-      <el-descriptions-item label-width="40px" label="maxx">
-        {{ extentStore.extent[2] }}
-      </el-descriptions-item>
-      <el-descriptions-item label-width="40px" label="maxy">
-        {{ extentStore.extent[3] }}
-      </el-descriptions-item>
-    </el-descriptions>
-    <el-button type="primary" circle size="small" @click="handleExtentCopy">
-      <el-icon><CopyDocument /></el-icon>
-    </el-button>
+    <h4>行政区划范围</h4>
+    <el-divider />
+    <div class="extent">
+      <el-descriptions :column="1" :size="'small'" border>
+        <el-descriptions-item label-width="40px" label="minx">
+          {{ extentStore.extent[0] }}
+        </el-descriptions-item>
+        <el-descriptions-item label-width="40px" label="miny">
+          {{ extentStore.extent[1] }}
+        </el-descriptions-item>
+        <el-descriptions-item label-width="40px" label="maxx">
+          {{ extentStore.extent[2] }}
+        </el-descriptions-item>
+        <el-descriptions-item label-width="40px" label="maxy">
+          {{ extentStore.extent[3] }}
+        </el-descriptions-item>
+      </el-descriptions>
+      <el-button type="primary" circle size="small" @click="handleExtentCopy">
+        <el-icon><CopyDocument /></el-icon>
+      </el-button>
+    </div>
   </div>
 
   <div class="extent-center" v-show="extentStore.center.length">
-    <div class="center">{{ extentStore.center.join(', ') }}</div>
-    <el-button type="primary" circle size="small" @click="handleCenterCopy">
-      <el-icon><CopyDocument /></el-icon>
-    </el-button>
+    <h4>行政区划中心坐标</h4>
+    <el-divider />
+    <div class="center-wrap">
+      <span class="center">{{ extentStore.center.join(', ') }}</span>
+      <el-button type="primary" circle size="small" @click="handleCenterCopy">
+        <el-icon><CopyDocument /></el-icon>
+      </el-button>
+    </div>
   </div>
 </template>
 
@@ -51,20 +59,23 @@ const handleCenterCopy = async () => {
 <style lang="scss" scoped>
 .division-extent {
   position: absolute;
-  bottom: 84px;
+  bottom: 114px;
   right: 8px;
   z-index: 2;
   background-color: rgba(255, 255, 255, 0.9);
   color: #303133;
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
   padding: 5px 8px;
   border-radius: 4px;
+  font-size: 13px;
 
-  .el-button {
-    flex-shrink: 0;
-    margin-top: 2px;
+  .extent {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    .el-button {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
   }
 }
 
@@ -76,19 +87,25 @@ const handleCenterCopy = async () => {
   background-color: rgba(255, 255, 255, 0.9);
   color: #303133;
   font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
   padding: 5px 8px;
   border-radius: 4px;
 
-  .center {
-    font-size: 12px;
+  .center-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    .center {
+      font-size: 12px;
+    }
   }
 
   .el-button {
     flex-shrink: 0;
     margin-top: 2px;
   }
+}
+
+:deep(.el-divider--horizontal) {
+  margin: 5px 0;
 }
 </style>
