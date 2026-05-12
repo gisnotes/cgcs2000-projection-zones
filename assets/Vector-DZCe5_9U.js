@@ -1,1 +1,0 @@
-import{n as e,t}from"./BaseVector-DT63ZrZ_.js";var n=class extends t{constructor(e){super(e)}createRenderer(){return new e(this)}};export{n as t};

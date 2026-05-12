@@ -1,1 +1,0 @@
-import{t as e}from"./index-DC9EsFJ4.js";const t=e(`mapExtent`,{state:()=>({extent:[],center:[]}),actions:{updateExtent(e){e?.length&&(this.extent=e)},updateCenter(e){e?.length&&(this.center=e)}}});export{t};
