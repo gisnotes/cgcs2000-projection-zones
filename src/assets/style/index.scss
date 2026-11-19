@@ -1,3 +1,14 @@
+:root {
+  --panel-bg: rgba(255, 255, 255, 0.92);
+  --panel-border: 1px solid rgba(15, 23, 42, 0.08);
+  --panel-shadow:
+    0 4px 16px rgba(15, 23, 42, 0.1), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --panel-radius: 8px;
+  --control-radius: 6px;
+  --control-height: 32px;
+  --edge-gap: 12px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,4 +21,22 @@ body,
 .app {
   height: 100%;
   color: #606266;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(144, 147, 153, 0.35);
+  border-radius: 999px;
+
+  &:hover {
+    background: rgba(144, 147, 153, 0.55);
+  }
 }

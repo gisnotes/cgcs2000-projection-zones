@@ -1,20 +1,24 @@
 <template>
   <div class="map" ref="mapDivRef">
-    <el-segmented
-      class="map-switch"
-      v-model="mapType"
-      :options="typeOptions"
-      @change="handleMapTypeChange" />
-    <div class="graticule-switch">
-      <div>经纬网：</div>
-      <el-switch
-        size="small"
-        width="40px"
-        v-model="graticuleSwitchVal"
-        inline-prompt
-        active-text="开"
-        inactive-text="关"
-        @change="handleGraticuleSwitchChange" />
+    <div class="bottom-left-bar">
+      <el-segmented
+        class="map-switch"
+        v-model="mapType"
+        :options="typeOptions"
+        @change="handleMapTypeChange" />
+      <div class="graticule-switch">
+        <span class="label">经纬网</span>
+        <el-switch
+          size="small"
+          width="38px"
+          v-model="graticuleSwitchVal"
+          inline-prompt
+          active-text="开"
+          inactive-text="关"
+          @change="handleGraticuleSwitchChange" />
+      </div>
+      <slot name="bottom-left" />
+      <div class="scale-line-wrap" ref="scaleLineRef" />
     </div>
     <div
       class="realtime-coordinates"
@@ -86,6 +90,7 @@ const graticuleLayer = new Graticule({
 });
 
 const realtimeCoordinatesRef = ref(null);
+const scaleLineRef = ref(null);
 
 //#region-------生命周期-------
 onMounted(async () => {
@@ -124,7 +129,9 @@ function createMap() {
     zoom: false,
   }).extend([
     attribution,
-    new ScaleLine(),
+    new ScaleLine({
+      target: scaleLineRef.value,
+    }),
     new MousePosition({
       target: realtimeCoordinatesRef.value,
       coordinateFormat: (coord) => {
@@ -216,55 +223,134 @@ function handleGraticuleSwitchChange(checked) {
 .map {
   height: 100%;
   position: relative;
+}
 
-  &-switch {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    z-index: 2;
+.bottom-left-bar {
+  position: absolute;
+  bottom: var(--edge-gap);
+  left: var(--edge-gap);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-switch,
+.graticule-switch,
+.scale-line-wrap,
+.realtime-coordinates {
+  height: var(--control-height);
+  box-sizing: border-box;
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  border-radius: var(--control-radius);
+}
+
+.map-switch {
+  padding: 2px;
+  --el-segmented-bg-color: transparent;
+  --el-border-radius-base: 4px;
+
+  :deep(.el-segmented__group) {
+    height: 100%;
+  }
+
+  :deep(.el-segmented__item) {
+    min-height: 26px;
+    padding: 0 10px;
+    font-size: 13px;
   }
 }
 
 .graticule-switch {
-  position: absolute;
-  left: 140px;
-  bottom: 8px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  z-index: 2;
-  background-color: rgba(255, 255, 255, 0.9);
+  padding: 0 10px;
   display: flex;
   align-items: center;
-  font-size: 14px;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.12),
-    0 0 6px rgba(0, 0, 0, 0.04);
+  gap: 6px;
+  font-size: 13px;
+  color: #303133;
+  white-space: nowrap;
+}
+
+.scale-line-wrap {
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+
+  :deep(.ol-scale-line) {
+    position: static;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+  }
+
+  :deep(.ol-scale-line-inner) {
+    border: 1px solid #606266;
+    border-top: none;
+    color: #303133;
+    font-size: 11px;
+    line-height: 1.2;
+    padding: 0 4px 1px;
+    margin: 0;
+  }
 }
 
 .realtime-coordinates {
-  width: auto;
   position: absolute;
-  bottom: 8px;
+  bottom: var(--edge-gap);
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
-  background-color: rgba(255, 255, 255, 0.9);
+  min-width: 225px;
+  padding: 0 12px;
   color: #303133;
-  font-size: 13px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 8px;
-  border-radius: 4px;
-}
-
-:deep(.ol-scale-line) {
-  left: 280px;
 }
 
 /* 鼠标实时坐标组件样式自定义 */
 :deep(.ol-mouse-position) {
   position: static;
   flex: 1;
+}
+
+:deep(.ol-attribution) {
+  bottom: var(--edge-gap);
+  right: var(--edge-gap);
+  height: var(--control-height);
+  max-height: var(--control-height);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: var(--control-radius);
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+
+  ul {
+    font-size: 12px;
+    color: #606266;
+    text-shadow: none;
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  button {
+    width: 22px;
+    height: 22px;
+    color: #606266;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>

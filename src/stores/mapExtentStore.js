@@ -13,7 +13,7 @@ export const useMapExtentStore = defineStore('mapExtent', {
     },
     updateCenter(newValue) {
       if (newValue?.length) {
-        this.center = newValue;
+        this.center = newValue.map((val) => Number(Number(val).toFixed(8)));
       }
     },
   },

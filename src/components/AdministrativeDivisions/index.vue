@@ -1,47 +1,54 @@
 <template>
-  <transition name="el-zoom-in-center">
-    <div class="projection-zones-fold" v-show="fold" @click="handleFold">
-      <i-ep-Fold />
-    </div>
-  </transition>
-  <transition name="el-zoom-in-center">
-    <div class="projection-zones" v-show="!fold">
-      <div class="header">
-        <div class="title">行政区划</div>
-        <div class="fold" @click="handleFold">
-          <i-ep-Expand />
+  <div class="admin-divisions" :class="{ 'is-folded': fold }">
+    <transition name="el-zoom-in-center">
+      <div
+        class="projection-zones-fold"
+        title="展开行政区划"
+        v-show="fold"
+        @click="handleFold">
+        <i-ep-Fold />
+      </div>
+    </transition>
+    <transition name="el-zoom-in-center">
+      <div class="projection-zones" v-show="!fold">
+        <div class="header">
+          <div class="title">行政区划</div>
+          <div class="fold" title="收起" @click="handleFold">
+            <i-ep-Expand />
+          </div>
+        </div>
+        <el-divider class="panel-divider" />
+        <el-input
+          v-model="filterText"
+          class="filter-input"
+          size="small"
+          placeholder="请输入关键字"
+          clearable />
+        <div
+          class="tree"
+          v-loading.lock="loading"
+          element-loading-text="数据加载中...">
+          <el-tree
+            ref="treeRef"
+            :data
+            node-key="gb"
+            :props="{ children: 'children', label: 'name' }"
+            :default-expanded-keys="[]"
+            :filter-node-method="filterNode"
+            @node-click="handleNodeClick"
+            highlight-current
+            empty-text="暂无数据"
+            :expand-on-click-node="false">
+            <template #default="{ node }">
+              <span class="custom-tree-node">
+                <span :title="node.label">{{ node.label }}</span>
+              </span>
+            </template>
+          </el-tree>
         </div>
       </div>
-      <el-divider style="margin: 10px 0"></el-divider>
-      <el-input
-        v-model="filterText"
-        style="margin: 6px 0 10px"
-        placeholder="请输入关键字"
-        clearable />
-      <div
-        class="tree"
-        v-loading.lock="loading"
-        element-loading-text="数据加载中...">
-        <el-tree
-          ref="treeRef"
-          :data
-          node-key="gb"
-          :props="{ children: 'children', label: 'name' }"
-          :default-expanded-keys="[]"
-          :filter-node-method="filterNode"
-          @node-click="handleNodeClick"
-          highlight-current
-          empty-text="暂无数据"
-          :expand-on-click-node="false">
-          <template #default="{ node, data }">
-            <span class="custom-tree-node">
-              <span :title="node.label">{{ node.label }}</span>
-            </span>
-          </template>
-        </el-tree>
-      </div>
-    </div>
-  </transition>
+    </transition>
+  </div>
 </template>
 
 <script setup>
@@ -208,7 +215,7 @@ function showClickDivision(featureGeoJSON, name) {
     mapExtentStore.updateCenter(getCenter(extent));
     map.getView().fit(extent, {
       duration: 300,
-      padding: [20, 50 + 30 + 260, 20, 50 + 400],
+      padding: [36, 300, 56, 390],
     });
   }
 }
@@ -228,63 +235,87 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.admin-divisions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 0 1 480px;
+  min-height: 0;
+  max-height: 100%;
+
+  &.is-folded {
+    flex: 0 0 auto;
+  }
+}
+
 .projection-zones-fold {
-  top: 8px;
-  right: 8px;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   cursor: pointer;
+
   &:hover {
-    color: #4094ff;
+    color: #409eff;
   }
 }
 
 .projection-zones-fold,
 .projection-zones {
-  position: absolute;
-  border-radius: 4px;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.12),
-    0 0 6px rgba(0, 0, 0, 0.04);
+  border-radius: var(--panel-radius);
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
   display: flex;
-  background-color: white;
-  opacity: 0.9;
 }
 
 .projection-zones {
-  top: 8px;
-  right: 8px;
-  width: 260px;
-  height: 500px;
+  width: 268px;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
-  padding: 10px;
+  padding: 12px;
   flex-direction: column;
 
   .header {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 
     .title {
       flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
     }
 
     .fold {
-      width: 30px;
-      height: 30px;
-      font-size: 20px;
+      width: 28px;
+      height: 28px;
+      font-size: 18px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 2px;
+      border-radius: 4px;
 
       &:hover {
-        color: #4094ff;
+        color: #409eff;
+        background: rgba(64, 158, 255, 0.08);
       }
     }
+  }
+
+  .panel-divider {
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
+  .filter-input {
+    margin-bottom: 8px;
+    flex-shrink: 0;
   }
 
   .tree {
@@ -292,6 +323,16 @@ onUnmounted(() => {
     min-height: 0;
     height: auto;
     overflow: hidden auto;
+
+    :deep(.el-tree) {
+      background: transparent;
+      font-size: 12px;
+      --el-tree-node-content-height: 28px;
+    }
+
+    :deep(.el-tree-node__content) {
+      border-radius: 4px;
+    }
   }
 }
 

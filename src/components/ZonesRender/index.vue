@@ -10,8 +10,8 @@
       :default-checked-keys="defaultCheckedKeys"
       @node-click="handleNodeClick"
       highlight-current>
-      <template #default="{ node, data }">
-        <span :title="node.label">{{ node.label }}</span>
+      <template #default="{ node }">
+        <span class="tree-node-label" :title="node.label">{{ node.label }}</span>
       </template>
     </el-tree>
   </div>
@@ -47,6 +47,10 @@ const props = defineProps({
     default: 'zones-render',
   },
   visible: {
+    type: Boolean,
+    default: false,
+  },
+  active: {
     type: Boolean,
     default: false,
   },
@@ -118,16 +122,25 @@ watch(isMapCreated, (val) => {
 watch(
   () => props.visible,
   (val) => {
-    // 切换到对应标签页，对应的图层才显示，若有高亮，则清除高亮
     layer.setVisible(val);
     cmLayer.setVisible(val);
+    if (!val) {
+      clearSource(highlightSource);
+      emits('closePopup');
+    }
+  },
+);
+
+watch(
+  () => props.active,
+  (val) => {
     clearSource(highlightSource);
     if (val) {
       // 切换显示新标签页时，fit中国范围，并关闭弹窗
       fitChinaExtent();
       emits('closePopup');
       // 切换标签页时，取消选中的node节点项
-      if (treeRef.value.getCurrentKey()) {
+      if (treeRef.value?.getCurrentKey()) {
         treeRef.value.setCurrentKey(null);
       }
     }
@@ -191,7 +204,7 @@ function handleNodeClick(data) {
 
     map.getView().fit(feature.getGeometry(), {
       duration: 300,
-      padding: [20, 50 + 30 + 260, 20, 50 + 400],
+      padding: [36, 300, 56, 390],
       callback: () => emits('popup', data),
     });
   }
@@ -200,7 +213,7 @@ function handleNodeClick(data) {
 function fitChinaExtent() {
   map.getView().fit(CHINA_2000_EXTENT, {
     duration: 300,
-    padding: [20, 50 + 30 + 260, 20, 50 + 400],
+    padding: [36, 300, 56, 390],
   });
 }
 
@@ -222,3 +235,24 @@ const getCentralMeridianPoints = (extent, stretchLength = 2) => {
   ];
 };
 </script>
+
+<style lang="scss" scoped>
+.custom-tree {
+  background: transparent;
+  font-size: 12px;
+  --el-tree-node-content-height: 28px;
+
+  .tree-node-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  :deep(.el-tree-node__content) {
+    border-radius: 4px;
+    padding-right: 6px;
+  }
+}
+</style>

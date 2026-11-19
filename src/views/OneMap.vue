@@ -1,15 +1,50 @@
 <template>
   <div class="wrap">
     <!-- 地图 -->
-    <tdt-map @mapCreated="mapCreated" @mapClick="mapClick" />
+    <tdt-map @mapCreated="mapCreated" @mapClick="mapClick">
+      <template #bottom-left>
+        <!-- 更改天地图秘钥 -->
+        <div class="tk-change">
+          <button
+            type="button"
+            class="tk-trigger"
+            :class="{ active: show }"
+            title="变更天地图秘钥"
+            @mousedown.prevent
+            @click="handleToggle">
+            <el-icon><Refresh /></el-icon>
+            <span>天地图秘钥</span>
+          </button>
+          <transition name="el-zoom-in-bottom">
+            <div class="tk-popover" v-show="show">
+              <el-input
+                ref="inputRef"
+                v-model="tk"
+                size="small"
+                placeholder="请输入新秘钥后按 Enter 生效"
+                clearable
+                @blur="handleInputBlur"
+                @keyup.enter="handleSearch">
+                <template #prefix>
+                  <i-ep-Search />
+                </template>
+              </el-input>
+            </div>
+          </transition>
+        </div>
+      </template>
+    </tdt-map>
     <!-- 分度带 -->
     <projection-zones
       v-model:fold="foldProjectionZones"
       v-bind="$attrs"
       @popup="handlePopup"
       @closePopup="handleClosePopup" />
-    <!-- 行政区划 -->
-    <administrative-divisions />
+    <!-- 右侧功能区：行政区划 + 范围/中心坐标 -->
+    <div class="right-dock">
+      <administrative-divisions />
+      <division-extent />
+    </div>
     <!-- 弹窗 -->
     <ol-popup
       ref="popup"
@@ -19,36 +54,6 @@
       :propeties
       :popupInfo
       @close="closePopup" />
-    <!-- 更改天地图秘钥 -->
-    <div
-      class="tk-change"
-      :style="{ left: foldProjectionZones ? '54px' : '406px' }">
-      <transition name="el-zoom-in-left">
-        <el-button plain type="primary" v-show="!show" @click="handleShow">
-          变更天地图秘钥
-          <el-icon class="el-icon--right">
-            <Refresh />
-          </el-icon>
-        </el-button>
-      </transition>
-      <transition name="el-zoom-in-left">
-        <div class="input" v-show="show">
-          <el-input
-            ref="inputRef"
-            v-model="tk"
-            placeholder="请输入要更改的秘钥后按 Enter 即可"
-            clearable
-            @blur="handleInputBlur"
-            @keyup.enter="handleSearch">
-            <template #prefix>
-              <i-ep-Search />
-            </template>
-          </el-input>
-        </div>
-      </transition>
-    </div>
-    <!-- 显示行政区划extent -->
-    <division-extent />
   </div>
 </template>
 
@@ -135,11 +140,11 @@ function handleClosePopup() {
   popup.value?.close();
 }
 
-function handleShow() {
-  if (!show.value) {
-    show.value = true;
+function handleToggle() {
+  show.value = !show.value;
+  if (show.value) {
     nextTick(() => {
-      inputRef.value.focus();
+      inputRef.value?.focus();
     });
   }
 }
@@ -167,19 +172,71 @@ function handleSearch() {
 <style lang="scss" scoped>
 .wrap {
   height: 100%;
+  position: relative;
 
-  .tk-change {
+  .right-dock {
     position: absolute;
-    top: 10px;
+    top: var(--edge-gap);
+    right: var(--edge-gap);
+    bottom: 56px;
     z-index: 2;
-    transition: left 0.3s ease-in-out;
     display: flex;
-    .input {
-      width: 310px;
-      position: absolute;
-      top: 0;
-      left: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
     }
+  }
+}
+
+.tk-change {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .tk-trigger {
+    height: var(--control-height);
+    box-sizing: border-box;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #303133;
+    background: var(--panel-bg);
+    backdrop-filter: blur(8px);
+    border: var(--panel-border);
+    border-radius: var(--control-radius);
+    box-shadow: var(--panel-shadow);
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+
+    &:hover,
+    &.active {
+      color: #409eff;
+      border-color: rgba(64, 158, 255, 0.35);
+    }
+  }
+
+  .tk-popover {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    width: 300px;
+    padding: 8px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(8px);
+    border: var(--panel-border);
+    border-radius: var(--panel-radius);
+    box-shadow: var(--panel-shadow);
+    z-index: 10;
   }
 }
 </style>
