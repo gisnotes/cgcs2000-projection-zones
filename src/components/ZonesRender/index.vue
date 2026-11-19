@@ -100,7 +100,7 @@ const cmStyle = new Style({
   }),
 });
 const cmLayer = new VectorLayer({
-  cmSource,
+  source: cmSource,
   zIndex: 99,
   visible: props.visible,
   properties: {
@@ -120,6 +120,7 @@ watch(
   (val) => {
     // 切换到对应标签页，对应的图层才显示，若有高亮，则清除高亮
     layer.setVisible(val);
+    cmLayer.setVisible(val);
     clearSource(highlightSource);
     if (val) {
       // 切换显示新标签页时，fit中国范围，并关闭弹窗
@@ -174,7 +175,7 @@ function renderCentralMeridianLine(item) {
   const newCmStyle = cmStyle.clone();
   newCmStyle.getText().setText(item.centralMeridian);
   cmFeature.setStyle(newCmStyle);
-  source.addFeature(cmFeature);
+  cmSource.addFeature(cmFeature);
 }
 
 function handleNodeClick(data) {

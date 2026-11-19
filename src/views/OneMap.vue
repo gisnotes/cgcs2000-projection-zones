@@ -7,8 +7,7 @@
       v-model:fold="foldProjectionZones"
       v-bind="$attrs"
       @popup="handlePopup"
-      @closePopup="handleClosePopup"
-      @show="" />
+      @closePopup="handleClosePopup" />
     <!-- 行政区划 -->
     <administrative-divisions />
     <!-- 弹窗 -->
@@ -40,7 +39,7 @@
             placeholder="请输入要更改的秘钥后按 Enter 即可"
             clearable
             @blur="handleInputBlur"
-            @keyup.enter.native="handleSearch">
+            @keyup.enter="handleSearch">
             <template #prefix>
               <i-ep-Search />
             </template>
@@ -57,7 +56,6 @@
 import { Refresh } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { getCenter } from 'ol/extent';
-import { unByKey } from 'ol/Observable';
 
 import { useTkStore } from '@/stores/tkStore.js';
 import { clearSource, getLayerByName } from '@/utils/common.js';
