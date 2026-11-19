@@ -143,14 +143,18 @@ export function createPolygonStyle(fillColor, strokeColor, strokeWidth, text) {
       text && text !== '境界线'
         ? new Text({
             text,
-            font: '12px sans-serif',
+            font: '600 12px "Inter", "PingFang SC", "Microsoft YaHei", sans-serif',
             fill: new Fill({
-              color: 'white',
+              color: '#ffffff',
             }),
             backgroundFill: new Fill({
-              color: 'red',
+              color: 'rgba(15, 23, 42, 0.82)',
             }),
-            padding: [2, 2, 2, 2],
+            backgroundStroke: new Stroke({
+              color: 'rgba(255, 255, 255, 0.85)',
+              width: 1,
+            }),
+            padding: [4, 8, 3, 8],
           })
         : undefined,
   });

@@ -1,6 +1,7 @@
 <script setup>
+import { CopyDocument } from '@element-plus/icons-vue';
+import { useClipboard } from '@vueuse/core';
 import Overlay from 'ol/Overlay';
-import { onMounted } from 'vue';
 
 const props = defineProps({
   title: {
@@ -13,33 +14,30 @@ const props = defineProps({
   },
   offset: {
     type: Array,
-    default: () => [0, -5],
+    default: () => [0, -14],
   },
   autoPan: {
     type: Boolean,
     default: true,
   },
-  //属性相关
+  // 属性相关
   propeties: {
-    type: Object,
-    default: () => {
-      return {};
-    },
+    type: Array,
+    default: () => [],
   },
   popupInfo: {
     type: Object,
-    default: () => {
-      return {};
-    },
+    default: () => ({}),
   },
 });
 
 let popOverLay = null;
-let popup = ref();
+const popup = ref();
 const emits = defineEmits(['close']);
 
 const state = inject('state');
 const isMapCreated = inject('isMapCreated');
+const { copy } = useClipboard();
 
 const getAutoPan = computed(() => {
   return props.autoPan
@@ -52,11 +50,22 @@ const getAutoPan = computed(() => {
     : props.autoPan;
 });
 
+const visibleProperties = computed(() => {
+  const list = Array.isArray(props.propeties) ? props.propeties : [];
+  return list.filter((prop) => {
+    if (prop.optional) {
+      const val = props.popupInfo?.[prop.key];
+      return val !== undefined && val !== null && val !== '';
+    }
+    return true;
+  });
+});
+
 watch(
   () => props.position,
   (val) => {
     if (popOverLay) {
-      if (val) {
+      if (val && val.length) {
         popOverLay.setOffset(props.offset);
         popOverLay.setPosition(val);
       } else {
@@ -69,7 +78,6 @@ watch(
 
 watch(isMapCreated, (isMapCreatedValue) => {
   if (isMapCreatedValue) {
-    // console.log("🚀 | isMapCreatedValue:", isMapCreatedValue);
     state.map.addOverlay(popOverLay);
   }
 });
@@ -78,9 +86,9 @@ onMounted(() => {
   popOverLay = new Overlay({
     element: popup.value,
     offset: props.offset,
-    autoPan: getAutoPan,
+    autoPan: getAutoPan.value,
     positioning: 'bottom-center',
-    propeties: {
+    properties: {
       name: 'popup',
     },
   });
@@ -89,8 +97,18 @@ onMounted(() => {
 });
 
 function close() {
-  popOverLay.setPosition(undefined);
+  popOverLay?.setPosition(undefined);
   emits('close');
+}
+
+async function handleCopyCode(code) {
+  await copy(String(code));
+  ElMessage.success(`已复制 EPSG:${code}`);
+}
+
+async function handleCopyBounds(bounds) {
+  await copy(JSON.stringify(bounds));
+  ElMessage.success('已复制投影范围');
 }
 
 onBeforeUnmount(() => {
@@ -105,137 +123,257 @@ defineExpose({
 <template>
   <div class="popup" ref="popup">
     <div class="popup-header">
-      <div class="popup-title" :title="title">
-        {{ title }}
+      <div class="popup-title-wrap">
+        <span class="popup-dot" />
+        <div class="popup-title" :title="title">
+          {{ title }}
+        </div>
       </div>
-      <div class="popup-close" @click="close">
+      <button
+        type="button"
+        class="popup-close"
+        title="关闭弹窗"
+        @click="close">
         <i-ep-close />
+      </button>
+    </div>
+
+    <div class="popup-content">
+      <div
+        v-for="prop in visibleProperties"
+        :key="prop.key || prop.val"
+        class="popup-row">
+        <span class="row-label">{{ prop.val }}</span>
+        <div class="row-value">
+          <template v-if="prop.key === 'code' && popupInfo[prop.key]">
+            <span class="epsg-badge">EPSG:{{ popupInfo[prop.key] }}</span>
+            <button
+              type="button"
+              class="mini-copy-btn"
+              title="复制 EPSG 代码"
+              @click="handleCopyCode(popupInfo[prop.key])">
+              <el-icon><CopyDocument /></el-icon>
+            </button>
+          </template>
+
+          <template v-else-if="Array.isArray(popupInfo[prop.key])">
+            <span class="mono-text">
+              [{{ popupInfo[prop.key].join(', ') }}]
+            </span>
+            <button
+              type="button"
+              class="mini-copy-btn"
+              title="复制投影范围"
+              @click="handleCopyBounds(popupInfo[prop.key])">
+              <el-icon><CopyDocument /></el-icon>
+            </button>
+          </template>
+
+          <template
+            v-else-if="prop.key === 'centralMeridian' && popupInfo[prop.key]">
+            <span class="cm-badge">{{ popupInfo[prop.key] }}</span>
+          </template>
+
+          <template v-else>
+            <span class="plain-text">
+              {{
+                popupInfo[prop.key]
+                  ? popupInfo[prop.key] + (prop.unit ? ' ' + prop.unit : '')
+                  : '--'
+              }}
+            </span>
+          </template>
+        </div>
       </div>
     </div>
-    <div class="popup-content">
-      <el-descriptions :column="1" :size="'small'" border>
-        <el-descriptions-item
-          label-width="70px"
-          v-for="prop in propeties"
-          :key="prop.val"
-          :label="prop.val">
-          {{
-            popupInfo[prop.key]
-              ? popupInfo[prop.key] + ' ' + (prop.unit ? prop.unit : '')
-              : '--'
-          }}
-        </el-descriptions-item>
-      </el-descriptions>
-    </div>
+
+    <div class="popup-arrow" />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .popup {
   position: absolute;
-  width: 350px;
-  background-color: white;
+  width: 344px;
+  background: var(--panel-bg-solid);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow:
-    0 2px 4px 0 rgba(100, 100, 100, 0.12),
-    0 0 6px 0 rgba(100, 100, 100, 0.6);
+    0 0 0 1px rgba(15, 23, 42, 0.08),
+    0 16px 36px -6px rgba(15, 23, 42, 0.2),
+    0 4px 12px -2px rgba(15, 23, 42, 0.08);
   transform: translate(-50%, -100%);
-  border-radius: 4px;
+  border-radius: 14px;
+}
 
-  &:after,
-  &:before {
-    top: 100%;
-    border: solid transparent;
-    content: ' ';
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    left: 50%;
-  }
+.popup-arrow {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--panel-bg-solid);
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  transform: translateX(-50%) rotate(45deg);
+  pointer-events: none;
+}
 
-  &:after {
-    border-top-color: #fff;
-    border-width: 10px;
-    margin-left: -10px;
-  }
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--panel-divider);
+  user-select: none;
+}
 
-  &:before {
-    border-top-color: #999;
-    border-width: 11px;
-    margin-left: -11px;
-  }
+.popup-title-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  &-header {
-    display: flex;
-    align-items: center;
-    line-height: 35px;
-    color: #000;
-    user-select: none;
-    border-bottom: 1px solid #eaeaea;
-  }
+.popup-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
 
-  &-title {
-    flex: 1;
-    padding-left: 10px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #303133;
-    user-select: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+.popup-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-  &-close {
-    width: 35px;
-    height: 35px;
-    border-radius: 0 4px 0 0;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: transparent;
-    cursor: pointer;
-  }
+.popup-close {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
 
-  &-content {
-    max-height: 300px;
-    font-size: 13px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 8px;
-
-    // 滚动条
-    &::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: none;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: #eaeaea;
-      border-radius: 10px;
-    }
-
-    .cell-item {
-      font-size: 12px;
-      padding: 4px 7px;
-      font-weight: bold;
-      text-align: right;
-    }
-
-    .see-all {
-      text-align: center;
-      padding: 8px 0;
-    }
+  &:hover {
+    color: var(--text-primary);
+    background: rgba(15, 23, 42, 0.06);
   }
 }
 
-:deep(.el-descriptions__label.el-descriptions__cell) {
-  font-weight: bold;
-  text-align: right;
+.popup-content {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 8px 12px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+
+  & + .popup-row {
+    border-top: 1px solid rgba(15, 23, 42, 0.05);
+  }
+}
+
+.row-label {
+  width: 72px;
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 20px;
+}
+
+.row-value {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 20px;
+}
+
+.plain-text {
+  word-break: break-word;
+  font-weight: 500;
+}
+
+.mono-text {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.epsg-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: var(--brand-primary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.cm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.18);
+  color: #be123c;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.mini-copy-btn {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--brand-primary);
+    background: var(--brand-primary-soft);
+  }
 }
 </style>

@@ -1,29 +1,80 @@
 <template>
-  <div class="admin-divisions" :class="{ 'is-folded': fold }">
-    <transition name="el-zoom-in-center">
-      <div
-        class="projection-zones-fold"
+  <div class="admin-divisions" :class="{ 'is-folded': isCollapsedLayout }">
+    <transition name="chip-right">
+      <button
+        type="button"
+        class="panel-toggle-chip"
         title="展开行政区划"
         v-show="fold"
         @click="handleFold">
-        <i-ep-Fold />
-      </div>
+        <span class="chip-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        </span>
+        <span class="chip-label">行政区划</span>
+        <i-ep-ArrowLeft class="chip-arrow" />
+      </button>
     </transition>
-    <transition name="el-zoom-in-center">
-      <div class="projection-zones" v-show="!fold">
+
+    <transition
+      name="panel-right"
+      @before-enter="isCollapsedLayout = false"
+      @after-leave="isCollapsedLayout = true">
+      <div class="division-panel" v-show="!fold">
         <div class="header">
-          <div class="title">行政区划</div>
-          <div class="fold" title="收起" @click="handleFold">
-            <i-ep-Expand />
+          <div class="header-brand">
+            <span class="brand-badge">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
+            <span class="title">行政区划</span>
+          </div>
+          <div class="header-actions">
+            <button
+              v-if="mapExtentStore.extent.length"
+              type="button"
+              class="clear-btn"
+              title="清除已选区划"
+              @click="handleClearDivision">
+              清除
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              title="收起面板"
+              @click="handleFold">
+              <i-ep-Expand />
+            </button>
           </div>
         </div>
-        <el-divider class="panel-divider" />
+
         <el-input
           v-model="filterText"
           class="filter-input"
           size="small"
-          placeholder="请输入关键字"
-          clearable />
+          placeholder="搜索省 / 市 / 县区..."
+          clearable>
+          <template #prefix>
+            <i-ep-Search />
+          </template>
+        </el-input>
+
         <div
           class="tree"
           v-loading.lock="loading"
@@ -41,7 +92,9 @@
             :expand-on-click-node="false">
             <template #default="{ node }">
               <span class="custom-tree-node">
-                <span :title="node.label">{{ node.label }}</span>
+                <span class="node-label" :title="node.label">{{
+                  node.label
+                }}</span>
               </span>
             </template>
           </el-tree>
@@ -71,6 +124,7 @@ const state = inject('state');
 const isMapCreated = inject('isMapCreated');
 
 const fold = ref(false);
+const isCollapsedLayout = ref(false);
 const data = ref([]);
 const loading = ref(false);
 
@@ -154,7 +208,6 @@ async function handleNodeClick(nodeData) {
   const storageKey = `bound_${code}`;
 
   let featureGeoJSON;
-  let url = '';
 
   try {
     // 优先从本地数据库获取 (此时拿到的是标准的 GeoJSON 对象)
@@ -166,13 +219,10 @@ async function handleNodeClick(nodeData) {
       loading.value = true;
       if (String(gb).endsWith('0000')) {
         type = '省';
-        // url = './data/中国_省.topojson';
       } else if (String(gb).endsWith('00') || String(gb).endsWith('000')) {
         type = '市';
-        // url = './data/中国_市.topojson';
       } else {
         type = '县';
-        // url = './data/中国_县.topojson';
       }
       const url = isDev
         ? `./data/中国_${type}.topojson`
@@ -205,19 +255,26 @@ function showClickDivision(featureGeoJSON, name) {
   const division = geojsonReader.readFeature(featureGeoJSON);
 
   division.setStyle(
-    createPolygonStyle('rgba(0, 0, 255, 0.2)', 'rgb(0, 0, 255)', 1.25, name),
+    createPolygonStyle('rgba(37, 99, 235, 0.14)', '#2563eb', 2, name),
   );
   source.addFeature(division);
 
   const extent = division?.getGeometry()?.getExtent();
   if (extent?.length === 4) {
+    mapExtentStore.updateName(name);
     mapExtentStore.updateExtent(extent);
     mapExtentStore.updateCenter(getCenter(extent));
     map.getView().fit(extent, {
       duration: 300,
-      padding: [36, 300, 56, 390],
+      padding: [40, 310, 64, 400],
     });
   }
+}
+
+function handleClearDivision() {
+  clearSource(source);
+  treeRef.value?.setCurrentKey(null);
+  mapExtentStore.clear();
 }
 
 function handleFold() {
@@ -226,6 +283,7 @@ function handleFold() {
 
 onUnmounted(() => {
   clearSource(source);
+  mapExtentStore.clear();
   // 组件销毁时彻底关闭线程
   if (worker) {
     worker.terminate();
@@ -236,86 +294,208 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .admin-divisions {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   flex: 0 1 480px;
   min-height: 0;
   max-height: 100%;
+  pointer-events: none;
+  transition: flex-basis 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 
   &.is-folded {
-    flex: 0 0 auto;
+    flex: 0 0 36px;
+    min-height: var(--control-height);
   }
 }
 
-.projection-zones-fold {
-  width: 36px;
-  height: 36px;
+.panel-toggle-chip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  white-space: nowrap;
+  transform-origin: right center;
+  pointer-events: auto;
+  height: var(--control-height);
+  padding: 0 12px 0 6px;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--panel-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: var(--panel-border);
+  border-radius: 999px;
+  box-shadow: var(--panel-shadow-sm);
   cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    color 0.18s ease;
+
+  .chip-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .chip-arrow {
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: transform 0.18s ease;
+  }
 
   &:hover {
-    color: #409eff;
+    color: var(--brand-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--panel-shadow);
+
+    .chip-arrow {
+      color: var(--brand-primary);
+      transform: translateX(-2px);
+    }
   }
 }
 
-.projection-zones-fold,
-.projection-zones {
-  border-radius: var(--panel-radius);
-  background: var(--panel-bg);
-  backdrop-filter: blur(8px);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-  display: flex;
-}
-
-.projection-zones {
-  width: 268px;
+.division-panel {
+  width: 280px;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
-  padding: 12px;
+  transform-origin: top right;
+  pointer-events: auto;
+  display: flex;
   flex-direction: column;
+  overflow: hidden;
+  padding: 14px;
+  border-radius: var(--panel-radius);
+  background: var(--panel-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
 
   .header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     flex-shrink: 0;
+    margin-bottom: 10px;
+  }
 
-    .title {
-      flex: 1;
-      font-size: 14px;
-      font-weight: 600;
-      color: #1f2937;
-    }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
 
-    .fold {
+    .brand-badge {
       width: 28px;
       height: 28px;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--brand-primary);
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px;
 
-      &:hover {
-        color: #409eff;
-        background: rgba(64, 158, 255, 0.08);
+      svg {
+        width: 16px;
+        height: 16px;
       }
+    }
+
+    .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
     }
   }
 
-  .panel-divider {
-    margin: 8px 0;
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     flex-shrink: 0;
+  }
+
+  .clear-btn {
+    height: 24px;
+    padding: 0 8px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+  }
+
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      color: var(--brand-primary);
+      background: var(--brand-primary-soft);
+    }
   }
 
   .filter-input {
     margin-bottom: 8px;
     flex-shrink: 0;
+
+    :deep(.el-input__wrapper) {
+      background: var(--panel-subtle-bg);
+      border-radius: 8px;
+      box-shadow: none;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 0 10px;
+      height: 30px;
+      transition: all 0.18s ease;
+
+      &.is-focus {
+        background: #ffffff;
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 3px var(--brand-primary-ring);
+      }
+    }
+
+    :deep(.el-input__inner) {
+      font-size: 12px;
+      color: var(--text-primary);
+    }
   }
 
   .tree {
@@ -323,21 +503,89 @@ onUnmounted(() => {
     min-height: 0;
     height: auto;
     overflow: hidden auto;
+    padding-right: 2px;
 
     :deep(.el-tree) {
       background: transparent;
-      font-size: 12px;
-      --el-tree-node-content-height: 28px;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      --el-tree-node-content-height: 30px;
+      --el-tree-node-hover-bg-color: rgba(15, 23, 42, 0.045);
     }
 
     :deep(.el-tree-node__content) {
-      border-radius: 4px;
+      border-radius: 7px;
+      padding-right: 8px;
+      transition:
+        background-color 0.14s ease,
+        color 0.14s ease;
+    }
+
+    :deep(.el-tree-node.is-current > .el-tree-node__content) {
+      background-color: #eff6ff;
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+
+    :deep(.el-tree-node__expand-icon) {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+  }
+
+  .custom-tree-node {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+
+    .node-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }
 
-/* 修改所有树节点的文字大小 */
-:deep(.custom-tree-node .el-tree-node .el-tree-node .el-tree-node__label) {
-  font-size: 12px !important;
+.panel-right-enter-active {
+  transition:
+    opacity 0.26s cubic-bezier(0.22, 1, 0.36, 1) 0.05s,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) 0.05s;
+}
+
+.panel-right-leave-active {
+  transition:
+    opacity 0.18s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.panel-right-enter-from,
+.panel-right-leave-to {
+  opacity: 0;
+  transform: translate3d(12px, -6px, 0) scale(0.92);
+}
+
+.chip-right-enter-active {
+  transition:
+    opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1) 0.09s,
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1) 0.09s;
+}
+
+.chip-right-leave-active {
+  transition:
+    opacity 0.14s ease-out,
+    transform 0.14s ease-out;
+}
+
+.chip-right-enter-from {
+  opacity: 0;
+  transform: translate3d(10px, 0, 0) scale(0.9);
+}
+
+.chip-right-leave-to {
+  opacity: 0;
+  transform: scale(0.92);
 }
 </style>

@@ -1,12 +1,46 @@
 :root {
-  --panel-bg: rgba(255, 255, 255, 0.92);
-  --panel-border: 1px solid rgba(15, 23, 42, 0.08);
+  --el-color-primary: #2563eb;
+  --el-color-primary-light-3: #60a5fa;
+  --el-color-primary-light-5: #93c5fd;
+  --el-color-primary-light-7: #bfdbfe;
+  --el-color-primary-light-8: #dbeafe;
+  --el-color-primary-light-9: #eff6ff;
+  --el-color-primary-dark-2: #1d4ed8;
+
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
+  --brand-primary-soft: rgba(37, 99, 235, 0.1);
+  --brand-primary-ring: rgba(37, 99, 235, 0.22);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --panel-bg: rgba(255, 255, 255, 0.88);
+  --panel-bg-solid: rgba(255, 255, 255, 0.96);
+  --panel-subtle-bg: rgba(241, 245, 249, 0.88);
+  --panel-hover-bg: rgba(241, 245, 249, 0.96);
+  --panel-border: 1px solid rgba(255, 255, 255, 0.75);
+  --panel-divider: rgba(15, 23, 42, 0.07);
   --panel-shadow:
-    0 4px 16px rgba(15, 23, 42, 0.1), 0 1px 3px rgba(15, 23, 42, 0.06);
-  --panel-radius: 8px;
-  --control-radius: 6px;
-  --control-height: 32px;
-  --edge-gap: 12px;
+    0 0 0 1px rgba(15, 23, 42, 0.07),
+    0 12px 32px -6px rgba(15, 23, 42, 0.15),
+    0 4px 10px -2px rgba(15, 23, 42, 0.06);
+  --panel-shadow-sm:
+    0 0 0 1px rgba(15, 23, 42, 0.07),
+    0 6px 20px -4px rgba(15, 23, 42, 0.12),
+    0 2px 6px -1px rgba(15, 23, 42, 0.05);
+  --panel-radius: 14px;
+  --control-radius: 10px;
+  --control-height: 36px;
+  --edge-gap: 14px;
+
+  --font-sans:
+    'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'Cascadia Code', 'SFMono-Regular', Menlo, Consolas,
+    monospace;
 }
 
 * {
@@ -20,7 +54,15 @@ body,
 #app,
 .app {
   height: 100%;
-  color: #606266;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.el-loading-mask {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(4px);
 }
 
 ::-webkit-scrollbar {
@@ -33,10 +75,10 @@ body,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(144, 147, 153, 0.35);
+  background: rgba(100, 116, 139, 0.26);
   border-radius: 999px;
 
   &:hover {
-    background: rgba(144, 147, 153, 0.55);
+    background: rgba(100, 116, 139, 0.48);
   }
 }

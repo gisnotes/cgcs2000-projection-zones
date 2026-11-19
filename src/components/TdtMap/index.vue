@@ -1,30 +1,144 @@
 <template>
   <div class="map" ref="mapDivRef">
     <div class="bottom-left-bar">
-      <el-segmented
-        class="map-switch"
-        v-model="mapType"
-        :options="typeOptions"
-        @change="handleMapTypeChange" />
-      <div class="graticule-switch">
-        <span class="label">经纬网</span>
-        <el-switch
-          size="small"
-          width="38px"
-          v-model="graticuleSwitchVal"
-          inline-prompt
-          active-text="开"
-          inactive-text="关"
-          @change="handleGraticuleSwitchChange" />
+      <div class="map-toolbar">
+        <div class="basemap-switch" role="group" aria-label="底图切换">
+          <button
+            v-for="opt in typeOptions"
+            :key="opt.value"
+            type="button"
+            class="basemap-option"
+            :class="{ active: mapType === opt.value }"
+            @click="selectMapType(opt.value)">
+            <svg
+              v-if="opt.value === 'vec'"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+              <line x1="9" y1="3" x2="9" y2="18" />
+              <line x1="15" y1="6" x2="15" y2="21" />
+            </svg>
+            <svg
+              v-else
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+            <span>{{ opt.label }}</span>
+          </button>
+        </div>
+
+        <span class="toolbar-divider" />
+
+        <button
+          type="button"
+          class="toolbar-btn"
+          :class="{ active: graticuleSwitchVal }"
+          title="显示/隐藏经纬网"
+          @click="toggleGraticule">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <line x1="3" y1="9" x2="21" y2="9" />
+            <line x1="3" y1="15" x2="21" y2="15" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+            <line x1="15" y1="3" x2="15" y2="21" />
+          </svg>
+          <span>经纬网</span>
+          <span class="status-indicator" />
+        </button>
+
+        <span class="toolbar-divider" />
+
+        <slot name="bottom-left" />
       </div>
-      <slot name="bottom-left" />
+
+      <div class="zoom-controls" role="group" aria-label="缩放与重置控制">
+        <button
+          type="button"
+          class="zoom-btn"
+          title="缩小"
+          @click="handleZoom(-1)">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </button>
+        <span class="zoom-divider" />
+        <button
+          type="button"
+          class="zoom-btn"
+          title="重置全国视角"
+          @click="handleResetView">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="7" />
+            <circle cx="12" cy="12" r="2" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="22" y2="12" />
+          </svg>
+        </button>
+        <span class="zoom-divider" />
+        <button
+          type="button"
+          class="zoom-btn"
+          title="放大"
+          @click="handleZoom(1)">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </button>
+      </div>
+
       <div class="scale-line-wrap" ref="scaleLineRef" />
     </div>
-    <div
-      class="realtime-coordinates"
-      ref="realtimeCoordinatesRef"
-      v-show="lngLat">
-      实时坐标：
+
+    <div class="realtime-coordinates" v-show="lngLat">
+      <svg
+        class="coord-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+      </svg>
+      <span class="coord-prefix">坐标</span>
+      <div class="coord-target" ref="realtimeCoordinatesRef" />
     </div>
   </div>
 </template>
@@ -41,7 +155,7 @@ import Graticule from 'ol/layer/Graticule.js';
 import Map from 'ol/Map.js';
 import { unByKey } from 'ol/Observable.js';
 import { Vector as VectorSource } from 'ol/source.js';
-import { Fill, Stroke, Style } from 'ol/style.js';
+import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import View from 'ol/View.js';
 
 import 'ol/ol.css';
@@ -80,13 +194,25 @@ const typeOptions = [
 const graticuleSwitchVal = ref(false);
 const graticuleLayer = new Graticule({
   strokeStyle: new Stroke({
-    color: 'rgba(255,120,0,0.9)',
-    width: 2,
-    lineDash: [0.5, 4],
+    color: 'rgba(217, 119, 6, 0.55)',
+    width: 1.2,
+    lineDash: [3, 4],
   }),
   showLabels: true,
   visible: graticuleSwitchVal.value,
   lonLabelPosition: 0.05,
+  lonLabelStyle: new Text({
+    font: '600 11px "Inter", "PingFang SC", sans-serif',
+    textBaseline: 'bottom',
+    fill: new Fill({ color: '#334155' }),
+    stroke: new Stroke({ color: 'rgba(255, 255, 255, 0.92)', width: 3 }),
+  }),
+  latLabelStyle: new Text({
+    font: '600 11px "Inter", "PingFang SC", sans-serif',
+    textAlign: 'end',
+    fill: new Fill({ color: '#334155' }),
+    stroke: new Stroke({ color: 'rgba(255, 255, 255, 0.92)', width: 3 }),
+  }),
 });
 
 const realtimeCoordinatesRef = ref(null);
@@ -119,7 +245,6 @@ function createMap() {
     'img' === props.defaultTdtLyrType,
   );
   attribution = new Attribution({
-    // collapsible: false,
     attributions: `<span>自然资源部 & NavInfo审图号：GS（2025）1508号</span>`,
   });
 
@@ -152,18 +277,17 @@ function createMap() {
     zoom: 3,
     maxZoom: 28,
     projection: 'EPSG:4326',
-    // extent: [...CHINA_BBOX],
   });
 
   const highlightLayer = new VectorLayer({
     source: new VectorSource({ wrapX: false }),
     style: new Style({
       fill: new Fill({
-        color: 'rgba(0, 255, 255, 0.1)',
+        color: 'rgba(245, 158, 11, 0.16)',
       }),
       stroke: new Stroke({
-        color: 'rgb(0, 255, 255)',
-        width: 2,
+        color: '#f59e0b',
+        width: 2.5,
       }),
     }),
     properties: {
@@ -177,7 +301,7 @@ function createMap() {
     layers: [vecLyrGrp, imgLyrGrp, highlightLayer, graticuleLayer],
     view,
     controls,
-    interactions: defaultInteractions({ doubleClickZoom: false }), //关闭双击交互
+    interactions: defaultInteractions({ doubleClickZoom: false }),
   });
   emits('mapCreated', map);
 }
@@ -190,14 +314,18 @@ function initMapEvt() {
 
 function checkSize() {
   const small = map.getSize()[0] < 600;
-  // if (!small) return;
   attribution.setCollapsible(small);
   attribution.setCollapsed(small);
 }
 
 function mapClick(e) {
-  // ElMessage.primary({ message: e.coordinate.toString(), offset: 100 });
   emits('mapClick', e);
+}
+
+function selectMapType(value) {
+  if (mapType.value === value) return;
+  mapType.value = value;
+  handleMapTypeChange(value);
 }
 
 function handleMapTypeChange(value) {
@@ -210,12 +338,32 @@ function handleMapTypeChange(value) {
   }
 }
 
+function toggleGraticule() {
+  graticuleSwitchVal.value = !graticuleSwitchVal.value;
+  handleGraticuleSwitchChange(graticuleSwitchVal.value);
+}
+
 function handleGraticuleSwitchChange(checked) {
-  if (checked) {
-    graticuleLayer.setVisible(true);
-  } else {
-    graticuleLayer.setVisible(false);
-  }
+  graticuleLayer.setVisible(Boolean(checked));
+}
+
+function handleZoom(delta) {
+  if (!map) return;
+  const view = map.getView();
+  const currentZoom = view.getZoom();
+  if (currentZoom === undefined) return;
+  view.animate({
+    zoom: currentZoom + delta,
+    duration: 200,
+  });
+}
+
+function handleResetView() {
+  if (!map) return;
+  map.getView().fit(CHINA_BBOX, {
+    duration: 350,
+    padding: [40, 310, 64, 400],
+  });
 }
 </script>
 
@@ -229,53 +377,176 @@ function handleGraticuleSwitchChange(checked) {
   position: absolute;
   bottom: var(--edge-gap);
   left: var(--edge-gap);
-  z-index: 2;
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.map-switch,
-.graticule-switch,
+.map-toolbar,
+.zoom-controls,
 .scale-line-wrap,
 .realtime-coordinates {
   height: var(--control-height);
   box-sizing: border-box;
   background: var(--panel-bg);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(14px) saturate(160%);
   border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
+  box-shadow: var(--panel-shadow-sm);
   border-radius: var(--control-radius);
 }
 
-.map-switch {
-  padding: 2px;
-  --el-segmented-bg-color: transparent;
-  --el-border-radius-base: 4px;
+.map-toolbar {
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-  :deep(.el-segmented__group) {
-    height: 100%;
+.basemap-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 2px;
+  border-radius: 7px;
+  background: rgba(241, 245, 249, 0.9);
+}
+
+.basemap-option {
+  height: 24px;
+  padding: 0 9px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+
+  svg {
+    width: 13px;
+    height: 13px;
   }
 
-  :deep(.el-segmented__item) {
-    min-height: 26px;
-    padding: 0 10px;
-    font-size: 13px;
+  &:hover:not(.active) {
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background: var(--brand-primary);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
   }
 }
 
-.graticule-switch {
-  padding: 0 10px;
+.toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(15, 23, 42, 0.1);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.toolbar-btn {
+  height: 28px;
+  padding: 0 9px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    opacity: 0.45;
+    transition: all 0.16s ease;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+    background: rgba(15, 23, 42, 0.05);
+  }
+
+  &.active {
+    background: #eff6ff;
+    color: var(--brand-primary);
+    font-weight: 600;
+
+    .status-indicator {
+      background: var(--brand-primary);
+      opacity: 1;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+    }
+  }
+}
+
+.zoom-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #303133;
-  white-space: nowrap;
+  overflow: hidden;
+  padding: 0 2px;
+}
+
+.zoom-btn {
+  width: 30px;
+  height: 28px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: var(--brand-primary);
+    background: var(--brand-primary-soft);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.zoom-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(15, 23, 42, 0.08);
 }
 
 .scale-line-wrap {
-  padding: 0 10px;
+  padding: 0 11px;
   display: flex;
   align-items: center;
 
@@ -287,12 +558,14 @@ function handleGraticuleSwitchChange(checked) {
   }
 
   :deep(.ol-scale-line-inner) {
-    border: 1px solid #606266;
+    border: 1.5px solid #475569;
     border-top: none;
-    color: #303133;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
     font-size: 11px;
-    line-height: 1.2;
-    padding: 0 4px 1px;
+    font-weight: 500;
+    line-height: 1.25;
+    padding: 0 5px 1px;
     margin: 0;
   }
 }
@@ -302,42 +575,63 @@ function handleGraticuleSwitchChange(checked) {
   bottom: var(--edge-gap);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
-  min-width: 225px;
+  z-index: 4;
+  min-width: 224px;
   padding: 0 12px;
-  color: #303133;
+  color: var(--text-primary);
   font-size: 12px;
-  font-variant-numeric: tabular-nums;
   white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
-}
+  gap: 6px;
 
-/* 鼠标实时坐标组件样式自定义 */
-:deep(.ol-mouse-position) {
-  position: static;
-  flex: 1;
+  .coord-icon {
+    width: 13px;
+    height: 13px;
+    color: var(--brand-primary);
+    flex-shrink: 0;
+  }
+
+  .coord-prefix {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .coord-target {
+    display: flex;
+    align-items: center;
+  }
+
+  :deep(.ol-mouse-position) {
+    position: static;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+  }
 }
 
 :deep(.ol-attribution) {
   bottom: var(--edge-gap);
   right: var(--edge-gap);
+  z-index: 4;
   height: var(--control-height);
   max-height: var(--control-height);
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  padding: 0 8px;
+  padding: 0 9px;
   border-radius: var(--control-radius);
   background: var(--panel-bg);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(14px) saturate(160%);
   border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
+  box-shadow: var(--panel-shadow-sm);
 
   ul {
-    font-size: 12px;
-    color: #606266;
+    font-size: 11px;
+    color: var(--text-secondary);
     text-shadow: none;
     line-height: 1;
     padding: 0 4px;
@@ -346,11 +640,38 @@ function handleGraticuleSwitchChange(checked) {
   button {
     width: 22px;
     height: 22px;
-    color: #606266;
+    color: var(--text-secondary);
     background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+@media (max-width: 1240px) {
+  .bottom-left-bar {
+    gap: 6px;
+  }
+
+  .basemap-option {
+    padding: 0 7px;
+  }
+
+  .toolbar-btn {
+    padding: 0 7px;
+  }
+
+  .zoom-btn {
+    width: 27px;
+  }
+
+  .realtime-coordinates {
+    min-width: 0;
+    padding: 0 10px;
+
+    .coord-prefix {
+      display: none;
+    }
   }
 }
 </style>
