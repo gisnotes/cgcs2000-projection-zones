@@ -2,13 +2,16 @@
 
 访问地址：[https://gisnotes.github.io/cgcs2000-projection-zones/](https://gisnotes.github.io/cgcs2000-projection-zones/)
 
-- 最新效果界面-2026-05-12(支持查询并复制行政区划的center)：
-  ![2026-05-04 效果](./assets/images/PixPin_2026-05-12_11-26-05.jpg)
+- 最新效果界面-2026-11-19(支持查询并复制行政区划的center)：
+  ![2026-11-19 效果](./assets/images/PixPin_2026-11-19_13-44-46.jpg)
 
-- 最新效果界面-2026-05-04(支持查询并复制行政区划的extent)：
+- 历史效果界面-2026-05-12(支持查询并复制行政区划的center)：
+  ![2026-05-12 效果](./assets/images/PixPin_2026-05-12_11-26-05.jpg)
+
+- 历史效果界面-2026-05-04(支持查询并复制行政区划的extent)：
   ![2026-05-04 效果](./assets/images/PixPin_2026-05-04_19-13-22.jpg)
 
-- 最新效果界面-2026-02-05(支持增加天地图秘钥)：
+- 历史效果界面-2026-02-05(支持增加天地图秘钥)：
   ![2026-01-13 效果](./assets/images/PixPin_2026-02-05_15-43-03.jpg)
 
 # 提交记录
